@@ -1,0 +1,484 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<title>FABridge.as</title>
+<link rel="stylesheet" type="text/css" href="../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="asComment">/*
+Copyright ? 2006 Adobe Systems Incorporated
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;),
+to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*/</span>
+
+
+<span class="asComment">/*------------------------------------------------------------------------------------
+// The Bridge class, responsible for navigating JS instances
+/*----------------------------------------------------------------------------------*/</span>
+<span class="asPackage">package</span> bridge
+<span class="asBracket">{</span>
+
+<span class="asComment">/*------------------------------------------------------------------------------------
+// imports
+/*----------------------------------------------------------------------------------*/</span>
+<span class="asReserved">import</span> flash.external.ExternalInterface;
+<span class="asReserved">import</span> flash.util.<span class="asOperator">*</span>;
+<span class="asReserved">import</span> flash.events.<span class="asOperator">*</span>;
+<span class="asReserved">import</span> flash.display.<span class="asOperator">*</span>;
+
+<span class="asReserved">import</span> mx.controls.Alert;
+
+<span class="asReserved">import</span> mx.core.IMXMLObject;
+<span class="asComment">/*------------------------------------------------------------------------------------
+// The FABridge class, responsible for proxying AS objects into javascript
+/*----------------------------------------------------------------------------------*/</span>
+<span class="asReserved">public</span> <span class="asClass">class</span> FABridge <span class="asReserved">implements</span> IMXMLObject
+<span class="asBracket">{</span>
+<span class="asComment">/*------------------------------------------------------------------------------------
+// constructor
+/*----------------------------------------------------------------------------------*/</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> FABridge<span class="asBracket">()</span>
+    <span class="asBracket">{</span>
+        initializeCallbacks<span class="asBracket">()</span>;    
+    <span class="asBracket">}</span>
+    
+<span class="asComment">/*------------------------------------------------------------------------------------
+// private vars
+/*----------------------------------------------------------------------------------*/</span>
+
+    <span class="asDoc">/** stores a cache of descriptions of AS types suitable for sending to JS */</span>
+    <span class="asReserved">private</span> <span class="asVar">var</span> localTypeMap<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> <span class="asBracket">{}</span>;
+    <span class="asDoc">/** stores an id-referenced dictionary of objects exported to JS */</span>
+    <span class="asReserved">private</span> <span class="asVar">var</span> localInstanceMap<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> <span class="asBracket">{}</span>;
+    <span class="asDoc">/** stores an id-referenced dictionary of functions exported to JS */</span>
+    <span class="asReserved">private</span> <span class="asVar">var</span> localFunctionMap<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> <span class="asBracket">{}</span>;
+
+    <span class="asDoc">/** stores an id-referenced dictionary of proxy functions imported from JS */</span>
+    <span class="asReserved">private</span> <span class="asVar">var</span> remoteFunctionCache<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> <span class="asBracket">{}</span>
+
+     <span class="asDoc">/** a local counter for generating unique IDs */</span>
+    <span class="asReserved">private</span> <span class="asVar">var</span> nextID<span class="asOperator">:</span><span class="asReserved">Number</span> <span class="asOperator">=</span> 0;
+    
+    <span class="asDoc">/** values that can&apos;t be serialized natively across the bridge are packed and identified by type. 
+     * These constants represent different serialization types */</span>
+    <span class="asReserved">private</span> <span class="asReserved">static</span> <span class="asReserved">const</span> TYPE_ASINSTANCE<span class="asOperator">:</span><span class="asReserved">uint</span> <span class="asOperator">=</span> 1;
+    <span class="asReserved">private</span> <span class="asReserved">static</span> <span class="asReserved">const</span> TYPE_ASFUNCTION<span class="asOperator">:</span><span class="asReserved">uint</span> <span class="asOperator">=</span> 2;
+
+    <span class="asReserved">private</span> <span class="asReserved">static</span> <span class="asReserved">const</span> TYPE_JSFUNCTION<span class="asOperator">:</span><span class="asReserved">uint</span> <span class="asOperator">=</span> 3;
+    <span class="asReserved">private</span> <span class="asReserved">static</span> <span class="asReserved">const</span> TYPE_ANONYMOUS<span class="asOperator">:</span><span class="asReserved">uint</span> <span class="asOperator">=</span> 4;
+    <span class="asReserved">private</span> <span class="asVar">var</span> _initChecked<span class="asOperator">:</span><span class="asReserved">Boolean</span> <span class="asOperator">=</span> <span class="asReserved">false</span>;
+
+<span class="asComment">/*------------------------------------------------------------------------------------
+// properties
+/*----------------------------------------------------------------------------------*/</span>
+    
+    <span class="asReserved">public</span> <span class="asFunction">function</span> <span class="asReserved">get</span> rootObject<span class="asBracket">()</span><span class="asOperator">:</span>DisplayObject    <span class="asBracket">{</span><span class="asReserved">return</span> _rootObject;<span class="asBracket">}</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> <span class="asReserved">set</span> rootObject<span class="asBracket">(</span>value<span class="asOperator">:</span>DisplayObject<span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">void</span>
+    <span class="asBracket">{</span>
+        _rootObject <span class="asOperator">=</span> value;
+        checkInitialized<span class="asBracket">()</span>;
+    <span class="asBracket">}</span>
+    
+    <span class="asReserved">public</span> <span class="asVar">var</span> bridgeName<span class="asOperator">:</span><span class="asReserved">String</span>;
+    <span class="asReserved">private</span> <span class="asVar">var</span> _registerComplete<span class="asOperator">:</span><span class="asReserved">Boolean</span> <span class="asOperator">=</span> <span class="asReserved">false</span>;
+
+<span class="asComment">/*------------------------------------------------------------------------------------
+// initialization
+/*----------------------------------------------------------------------------------*/</span>
+
+    <span class="asDoc">/** attaches the callbacks to external interface */</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> initializeCallbacks<span class="asBracket">()</span><span class="asOperator">:</span><span class="asReserved">void</span>
+    <span class="asBracket">{</span>
+        <span class="asReserved">if</span> <span class="asBracket">(</span>ExternalInterface.available <span class="asOperator">==</span> <span class="asReserved">false</span><span class="asBracket">)</span>
+            <span class="asReserved">return</span>;
+            
+        ExternalInterface.addCallback<span class="asBracket">(</span><span class="asString">&quot;getRoot&quot;</span>,js_getRoot<span class="asBracket">)</span>;
+        ExternalInterface.addCallback<span class="asBracket">(</span><span class="asString">&quot;getPropFromAS&quot;</span>,js_getPropFromAS<span class="asBracket">)</span>;
+        ExternalInterface.addCallback<span class="asBracket">(</span><span class="asString">&quot;setPropInAS&quot;</span>,js_setPropertyInAS<span class="asBracket">)</span>;
+        ExternalInterface.addCallback<span class="asBracket">(</span><span class="asString">&quot;invokeASMethod&quot;</span>,js_invokeMethod<span class="asBracket">)</span>;        
+        ExternalInterface.addCallback<span class="asBracket">(</span><span class="asString">&quot;invokeASFunction&quot;</span>,js_invokeFunction<span class="asBracket">)</span>;        
+        ExternalInterface.addCallback<span class="asBracket">(</span><span class="asString">&quot;releaseASObjects&quot;</span>,js_releaseASObjects<span class="asBracket">)</span>;        
+        ExternalInterface.addCallback<span class="asBracket">(</span><span class="asString">&quot;create&quot;</span>,js_create<span class="asBracket">)</span>;        
+    <span class="asBracket">}</span>
+        
+    <span class="asReserved">private</span> <span class="asVar">var</span> _rootObject<span class="asOperator">:</span>DisplayObject;
+
+    
+    <span class="asReserved">private</span> <span class="asVar">var</span> _document<span class="asOperator">:</span>DisplayObject;
+    
+    <span class="asReserved">public</span> <span class="asFunction">function</span> initialized<span class="asBracket">(</span>document<span class="asOperator">:</span><span class="asReserved">Object</span>, id<span class="asOperator">:</span><span class="asReserved">String</span><span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">void</span>
+    <span class="asBracket">{</span>
+        _document <span class="asOperator">=</span> <span class="asBracket">(</span>document <span class="asReserved">as</span> DisplayObject<span class="asBracket">)</span>;
+        
+        <span class="asReserved">if</span><span class="asBracket">(</span>_document <span class="asOperator">!=</span> <span class="asReserved">null</span><span class="asBracket">)</span>
+            checkInitialized<span class="asBracket">()</span>;
+    <span class="asBracket">}</span>
+
+    <span class="asReserved">private</span> <span class="asFunction">function</span> <span class="asReserved">get</span> baseObject<span class="asBracket">()</span><span class="asOperator">:</span>DisplayObject
+    <span class="asBracket">{</span>
+        <span class="asReserved">return</span> <span class="asBracket">(</span>rootObject <span class="asOperator">==</span> <span class="asReserved">null</span><span class="asBracket">)</span><span class="asOperator">?</span> _document<span class="asOperator">:</span>rootObject;
+    <span class="asBracket">}</span>
+    
+
+    <span class="asReserved">private</span> <span class="asFunction">function</span> checkInitialized<span class="asBracket">()</span>
+    <span class="asBracket">{</span>
+        <span class="asReserved">if</span><span class="asBracket">(</span>_initChecked<span class="asOperator">==</span> <span class="asReserved">true</span><span class="asBracket">)</span>
+            <span class="asReserved">return</span>;
+        _initChecked <span class="asOperator">=</span> <span class="asReserved">true</span>;
+
+        <span class="asComment">// oops! timing error. Player team is working on it.</span>
+        <span class="asVar">var</span> t<span class="asOperator">:</span>Timer <span class="asOperator">=</span> <span class="asReserved">new</span> Timer<span class="asBracket">(</span>200,1<span class="asBracket">)</span>;
+        t.addEventListener<span class="asBracket">(</span>TimerEvent.TIMER,auxCheckInitialized<span class="asBracket">)</span>;
+        t.start<span class="asBracket">()</span>;
+    <span class="asBracket">}</span>
+    
+    <span class="asReserved">private</span> <span class="asFunction">function</span> auxCheckInitialized<span class="asBracket">(</span>e<span class="asOperator">:</span>Event<span class="asBracket">)</span> <span class="asBracket">{</span>
+        
+        <span class="asVar">var</span> bCanGetParams<span class="asOperator">:</span><span class="asReserved">Boolean</span> <span class="asOperator">=</span> <span class="asReserved">true</span>;    
+        
+        <span class="asReserved">try</span> <span class="asBracket">{</span>
+            <span class="asVar">var</span> params<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> baseObject.root.loaderInfo.parameters;
+        <span class="asBracket">}</span>
+        <span class="asReserved">catch</span><span class="asBracket">(</span>e<span class="asOperator">:</span><span class="asReserved">Error</span><span class="asBracket">)</span> <span class="asBracket">{</span>
+            bCanGetParams <span class="asOperator">=</span> <span class="asReserved">false</span>;
+        <span class="asBracket">}</span>
+
+        <span class="asReserved">if</span><span class="asBracket">(</span>bCanGetParams <span class="asOperator">==</span> <span class="asReserved">false</span><span class="asBracket">)</span>    
+        <span class="asBracket">{</span>
+            <span class="asVar">var</span> t<span class="asOperator">:</span>Timer <span class="asOperator">=</span> <span class="asReserved">new</span> Timer<span class="asBracket">(</span>100<span class="asBracket">)</span>;
+            <span class="asVar">var</span> timerFunc<span class="asOperator">:</span><span class="asReserved">Function</span> <span class="asOperator">=</span> <span class="asFunction">function</span><span class="asBracket">(</span>e<span class="asOperator">:</span>TimerEvent<span class="asBracket">)</span> 
+            <span class="asBracket">{</span>
+                <span class="asReserved">if</span><span class="asBracket">(</span>baseObject.root <span class="asOperator">!=</span> <span class="asReserved">null</span><span class="asBracket">)</span> <span class="asBracket">{</span>
+                    <span class="asReserved">try</span> <span class="asBracket">{</span>
+                        <span class="asVar">var</span> params<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> baseObject.root.loaderInfo.parameters;
+                    <span class="asBracket">}</span>
+                    <span class="asReserved">catch</span><span class="asBracket">(</span>e<span class="asOperator">:</span><span class="asReserved">Error</span><span class="asBracket">)</span> <span class="asBracket">{</span>
+                        bCanGetParams <span class="asOperator">=</span> <span class="asReserved">false</span>;
+                    <span class="asBracket">}</span>
+                    <span class="asReserved">if</span><span class="asBracket">(</span>bCanGetParams<span class="asBracket">)</span>
+                    <span class="asBracket">{</span>
+                        t.removeEventListener<span class="asBracket">(</span>TimerEvent.TIMER,timerFunc<span class="asBracket">)</span>;
+                        t.stop<span class="asBracket">()</span>;
+                        dispatchInit<span class="asBracket">()</span>;
+                    <span class="asBracket">}</span>
+                <span class="asBracket">}</span>        
+            <span class="asBracket">}</span>
+            t.addEventListener<span class="asBracket">(</span>TimerEvent.TIMER,timerFunc<span class="asBracket">)</span>;
+            t.start<span class="asBracket">()</span>;
+        <span class="asBracket">}</span>
+        <span class="asReserved">else</span>
+        <span class="asBracket">{</span>
+            dispatchInit<span class="asBracket">()</span>;
+        <span class="asBracket">}</span>
+    <span class="asBracket">}</span>
+    <span class="asReserved">private</span> <span class="asFunction">function</span> dispatchInit<span class="asBracket">(</span>e<span class="asOperator">:</span>Event <span class="asOperator">=</span> <span class="asReserved">null</span><span class="asBracket">)</span>
+    <span class="asBracket">{</span>
+        <span class="asReserved">if</span><span class="asBracket">(</span>_registerComplete <span class="asOperator">==</span> <span class="asReserved">true</span><span class="asBracket">)</span>
+            <span class="asReserved">return</span>;
+
+        <span class="asReserved">if</span> <span class="asBracket">(</span>ExternalInterface.available <span class="asOperator">==</span> <span class="asReserved">false</span><span class="asBracket">)</span>
+            <span class="asReserved">return</span>;
+        
+        <span class="asReserved">if</span><span class="asBracket">(</span> bridgeName <span class="asOperator">==</span> <span class="asReserved">null</span><span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            bridgeName <span class="asOperator">=</span> baseObject.root.loaderInfo.parameters<span class="asBracket">[</span><span class="asString">&quot;bridgeName&quot;</span><span class="asBracket">]</span>;
+
+            <span class="asReserved">if</span><span class="asBracket">(</span>bridgeName <span class="asOperator">==</span> <span class="asReserved">null</span><span class="asBracket">)</span>
+            <span class="asBracket">{</span>
+                bridgeName <span class="asOperator">=</span> <span class="asString">&quot;flash&quot;</span>;
+            <span class="asBracket">}</span>
+        <span class="asBracket">}</span>
+
+        _registerComplete <span class="asOperator">=</span> ExternalInterface.call<span class="asBracket">(</span><span class="asString">&quot;FABridge__bridgeInitialized&quot;</span>,<span class="asBracket">[</span>bridgeName<span class="asBracket">])</span>;
+    <span class="asBracket">}</span>
+
+<span class="asComment">/*------------------------------------------------------------------------------------
+// serialization/deserialization
+/*----------------------------------------------------------------------------------*/</span>
+    <span class="asDoc">/** serializes a value for transfer across the bridge.  primitive types are left as is.  Arrays are left as arrays, but individual 
+     * values in the array are serialized according to their type.  Functions and class instances are inserted into a hash table and sent
+     * across as keys into the table.  
+     * 
+     * For class instances, if the instance has been sent before, only its id is passed. If This is the first time the instance has been sent,
+     * a ref descriptor is sent associating the id with a type string. If this is the first time any instance of that type has been sent 
+     * across, a descriptor indicating methods, properties, and variables of the type is also sent across 
+     */</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> serialize<span class="asBracket">(</span>value<span class="asOperator">:*</span><span class="asBracket">)</span><span class="asOperator">:*</span>
+    <span class="asBracket">{</span>
+        <span class="asVar">var</span> result<span class="asOperator">:*</span> <span class="asOperator">=</span> <span class="asBracket">{}</span>;
+        result.newTypes <span class="asOperator">=</span> <span class="asBracket">[]</span>;
+        result.newRefs <span class="asOperator">=</span> <span class="asBracket">{}</span>;
+        
+        <span class="asReserved">if</span><span class="asBracket">(</span>value <span class="asReserved">is</span> <span class="asReserved">Number</span> <span class="asOperator">||</span> value <span class="asReserved">is</span> <span class="asReserved">Boolean</span> <span class="asOperator">||</span> value <span class="asReserved">is</span> <span class="asReserved">String</span> <span class="asOperator">||</span> value <span class="asOperator">==</span> <span class="asReserved">null</span> <span class="asOperator">||</span> value <span class="asOperator">==</span> <span class="asReserved">undefined</span>  <span class="asOperator">||</span> value <span class="asReserved">is</span> <span class="asReserved">int</span> <span class="asOperator">||</span> value <span class="asReserved">is</span> <span class="asReserved">uint</span><span class="asBracket">)</span> <span class="asBracket">{</span>
+            result <span class="asOperator">=</span> value;
+        <span class="asBracket">}</span> 
+        <span class="asReserved">else</span> <span class="asReserved">if</span> <span class="asBracket">(</span>value <span class="asReserved">is</span> <span class="asReserved">Array</span><span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            result <span class="asOperator">=</span> <span class="asBracket">[]</span>;
+            <span class="asReserved">for</span><span class="asBracket">(</span><span class="asVar">var</span> i<span class="asOperator">:</span><span class="asReserved">int</span><span class="asOperator">=</span>0;i<span class="asOperator">&lt;</span>value.length;i<span class="asOperator">++</span><span class="asBracket">)</span> <span class="asBracket">{</span>
+                result<span class="asBracket">[</span>i<span class="asBracket">]</span> <span class="asOperator">=</span> serialize<span class="asBracket">(</span>value<span class="asBracket">[</span>i<span class="asBracket">])</span>;    
+            <span class="asBracket">}</span>
+        <span class="asBracket">}</span>
+        <span class="asReserved">else</span> <span class="asReserved">if</span> <span class="asBracket">(</span>value <span class="asReserved">is</span> <span class="asReserved">Function</span><span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            <span class="asComment">// serialize a class</span>
+            result.type <span class="asOperator">=</span> TYPE_ASFUNCTION;            
+            result.value <span class="asOperator">=</span> getFunctionID<span class="asBracket">(</span>value,<span class="asReserved">true</span><span class="asBracket">)</span>;
+        <span class="asBracket">}</span>
+        <span class="asReserved">else</span> <span class="asReserved">if</span> <span class="asBracket">(</span>getQualifiedClassName<span class="asBracket">(</span>value<span class="asBracket">)</span> <span class="asOperator">==</span> <span class="asString">&quot;Object&quot;</span><span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            result.type <span class="asOperator">=</span> TYPE_ANONYMOUS;
+            result.value <span class="asOperator">=</span> value;
+        <span class="asBracket">}</span>
+        <span class="asReserved">else</span>
+        <span class="asBracket">{</span>
+            <span class="asComment">// serialize a class</span>
+            result.type <span class="asOperator">=</span> TYPE_ASINSTANCE;
+            
+            <span class="asComment">// make sure the type info is available</span>
+            <span class="asVar">var</span> className<span class="asOperator">:</span><span class="asReserved">String</span> <span class="asOperator">=</span> getQualifiedClassName<span class="asBracket">(</span>value<span class="asBracket">)</span>;
+            <span class="asReserved">if</span><span class="asBracket">(</span>retrieveCachedTypeDescription<span class="asBracket">(</span>className,<span class="asReserved">false</span><span class="asBracket">)</span> <span class="asOperator">==</span> <span class="asReserved">null</span><span class="asBracket">)</span> <span class="asBracket">{</span>
+                result.newTypes.push<span class="asBracket">(</span>retrieveCachedTypeDescription<span class="asBracket">(</span>className,<span class="asReserved">true</span><span class="asBracket">))</span>;
+            <span class="asBracket">}</span>
+            
+            <span class="asComment">// make sure the reference is known</span>
+            <span class="asVar">var</span> objRef<span class="asOperator">:</span><span class="asReserved">Number</span> <span class="asOperator">=</span> getRef<span class="asBracket">(</span>value,<span class="asReserved">false</span><span class="asBracket">)</span>;
+            <span class="asReserved">if</span><span class="asBracket">(</span>isNaN<span class="asBracket">(</span>objRef<span class="asBracket">))</span> <span class="asBracket">{</span>
+                objRef <span class="asOperator">=</span> getRef<span class="asBracket">(</span>value,<span class="asReserved">true</span><span class="asBracket">)</span>;
+                result.newRefs<span class="asBracket">[</span>objRef<span class="asBracket">]</span> <span class="asOperator">=</span> className;
+            <span class="asBracket">}</span>
+            result.value <span class="asOperator">=</span> objRef;
+        <span class="asBracket">}</span>
+        <span class="asReserved">return</span> result;
+    <span class="asBracket">}</span>
+
+    <span class="asDoc">/** deserializes a value passed in from javascript. See serialize for details on how values are packed and 
+     * unpacked for transfer across the bridge.    
+     */</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> deserialize<span class="asBracket">(</span>valuePackage<span class="asOperator">:*</span><span class="asBracket">)</span><span class="asOperator">:*</span>
+    <span class="asBracket">{</span>
+        <span class="asVar">var</span> result<span class="asOperator">:*</span>;
+        <span class="asReserved">if</span><span class="asBracket">(</span>valuePackage <span class="asReserved">is</span> <span class="asReserved">Number</span> <span class="asOperator">||</span> valuePackage <span class="asReserved">is</span> <span class="asReserved">Boolean</span> <span class="asOperator">||</span> valuePackage <span class="asReserved">is</span> <span class="asReserved">String</span> <span class="asOperator">||</span> valuePackage <span class="asOperator">==</span> <span class="asReserved">null</span> <span class="asOperator">||</span> valuePackage <span class="asOperator">==</span> <span class="asReserved">undefined</span>  <span class="asOperator">||</span> valuePackage <span class="asReserved">is</span> <span class="asReserved">int</span> <span class="asOperator">||</span> valuePackage <span class="asReserved">is</span> <span class="asReserved">uint</span><span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            result <span class="asOperator">=</span> valuePackage;
+        <span class="asBracket">}</span>
+        <span class="asReserved">else</span> <span class="asReserved">if</span><span class="asBracket">(</span>valuePackage <span class="asReserved">is</span> <span class="asReserved">Array</span><span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            result <span class="asOperator">=</span> <span class="asBracket">[]</span>;
+            <span class="asReserved">for</span><span class="asBracket">(</span><span class="asVar">var</span> i<span class="asOperator">:</span><span class="asReserved">int</span> <span class="asOperator">=</span> 0;i<span class="asOperator">&lt;</span>valuePackage.length;i<span class="asOperator">++</span><span class="asBracket">)</span>
+            <span class="asBracket">{</span>
+                result<span class="asBracket">[</span>i<span class="asBracket">]</span> <span class="asOperator">=</span> deserialize<span class="asBracket">(</span>valuePackage<span class="asBracket">[</span>i<span class="asBracket">])</span>;
+            <span class="asBracket">}</span>
+        <span class="asBracket">}</span>
+        <span class="asReserved">else</span> <span class="asReserved">if</span> <span class="asBracket">(</span>valuePackage.type <span class="asOperator">==</span> FABridge.TYPE_JSFUNCTION<span class="asBracket">)</span> 
+        <span class="asBracket">{</span>
+            result <span class="asOperator">=</span> getRemoteFunctionProxy<span class="asBracket">(</span>valuePackage.value,<span class="asReserved">true</span><span class="asBracket">)</span>;
+        <span class="asBracket">}</span>
+        <span class="asReserved">else</span> <span class="asReserved">if</span> <span class="asBracket">(</span>valuePackage.type <span class="asOperator">==</span> FABridge.TYPE_ASFUNCTION<span class="asBracket">)</span> 
+        <span class="asBracket">{</span>
+            <span class="asReserved">throw</span> <span class="asReserved">new</span> <span class="asReserved">Error</span><span class="asBracket">(</span><span class="asString">&quot;as functions can&apos;t be passed back to as yet&quot;</span><span class="asBracket">)</span>;
+        <span class="asBracket">}</span>
+        <span class="asReserved">else</span> <span class="asReserved">if</span> <span class="asBracket">(</span>valuePackage.type <span class="asOperator">==</span> FABridge.TYPE_ASINSTANCE<span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            result <span class="asOperator">=</span> resolveRef<span class="asBracket">(</span>valuePackage.value<span class="asBracket">)</span>;
+        <span class="asBracket">}</span>
+        <span class="asReserved">else</span> <span class="asReserved">if</span> <span class="asBracket">(</span>valuePackage.type <span class="asOperator">==</span> FABridge.TYPE_ANONYMOUS<span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            result <span class="asOperator">=</span> valuePackage.value;
+        <span class="asBracket">}</span>
+        <span class="asReserved">return</span> result;
+    <span class="asBracket">}</span>
+    
+    
+<span class="asComment">/*------------------------------------------------------------------------------------
+// type management
+/*----------------------------------------------------------------------------------*/</span>
+
+    <span class="asDoc">/** retrieves a type description for the type indicated by className, building one and caching it if necessary */</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> retrieveCachedTypeDescription<span class="asBracket">(</span>className<span class="asOperator">:</span><span class="asReserved">String</span>,createifNecessary<span class="asOperator">:</span><span class="asReserved">Boolean</span><span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">Object</span>
+    <span class="asBracket">{</span>
+        <span class="asReserved">if</span><span class="asBracket">(</span>localTypeMap<span class="asBracket">[</span>className<span class="asBracket">]</span> <span class="asOperator">==</span> <span class="asReserved">null</span> <span class="asOperator">&amp;&amp;</span> createifNecessary <span class="asOperator">==</span> <span class="asReserved">true</span><span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            localTypeMap<span class="asBracket">[</span>className<span class="asBracket">]</span> <span class="asOperator">=</span> buildTypeDescription<span class="asBracket">(</span>className<span class="asBracket">)</span>;
+        <span class="asBracket">}</span>
+        <span class="asReserved">return</span> localTypeMap<span class="asBracket">[</span>className<span class="asBracket">]</span>;
+        
+    <span class="asBracket">}</span>
+    
+    <span class="asDoc">/** builds a type description for the type indiciated by className */</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> buildTypeDescription<span class="asBracket">(</span>className<span class="asOperator">:</span><span class="asReserved">String</span><span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">Object</span>
+    <span class="asBracket">{</span>        
+        <span class="asVar">var</span> desc<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> <span class="asBracket">{}</span>;
+        
+        className <span class="asOperator">=</span> className.replace<span class="asBracket">(</span><span class="asOperator">/::/</span>,<span class="asString">&quot;.&quot;</span><span class="asBracket">)</span>;
+        <span class="asVar">var</span> objClass<span class="asOperator">:</span>Class <span class="asOperator">=</span> getClassByName<span class="asBracket">(</span>className<span class="asBracket">)</span>;
+
+        <span class="asVar">var</span> xData<span class="asOperator">:</span>XML <span class="asOperator">=</span> describeType<span class="asBracket">(</span>objClass<span class="asBracket">)</span>;
+
+        desc.name <span class="asOperator">=</span> xData.@name.toString<span class="asBracket">()</span>;
+
+        
+        <span class="asVar">var</span> methods<span class="asOperator">:</span><span class="asReserved">Array</span> <span class="asOperator">=</span> <span class="asBracket">[]</span>;
+        <span class="asVar">var</span> xMethods<span class="asOperator">:</span>XMLList <span class="asOperator">=</span> xData.factory.method;
+        <span class="asReserved">for</span><span class="asBracket">(</span><span class="asVar">var</span> i<span class="asOperator">:</span><span class="asReserved">int</span> <span class="asOperator">=</span> 0;i <span class="asOperator">&lt;</span> xMethods.length<span class="asBracket">()</span>;i<span class="asOperator">++</span><span class="asBracket">)</span> <span class="asBracket">{</span>
+            methods.push<span class="asBracket">(</span>xMethods<span class="asBracket">[</span>i<span class="asBracket">]</span>.@name.toString<span class="asBracket">())</span>;    
+        <span class="asBracket">}</span>        
+        desc.methods <span class="asOperator">=</span> methods;
+
+        <span class="asVar">var</span> accessors<span class="asOperator">:</span><span class="asReserved">Array</span> <span class="asOperator">=</span> <span class="asBracket">[]</span>;
+        <span class="asVar">var</span> xAcc<span class="asOperator">:</span>XMLList <span class="asOperator">=</span> xData.factory.accessor;
+        <span class="asReserved">for</span><span class="asBracket">(</span><span class="asVar">var</span> i<span class="asOperator">:</span><span class="asReserved">int</span> <span class="asOperator">=</span> 0;i <span class="asOperator">&lt;</span> xAcc.length<span class="asBracket">()</span>;i<span class="asOperator">++</span><span class="asBracket">)</span> <span class="asBracket">{</span>
+            accessors.push<span class="asBracket">(</span>xAcc<span class="asBracket">[</span>i<span class="asBracket">]</span>.@name.toString<span class="asBracket">())</span>;    
+        <span class="asBracket">}</span>        
+        xAcc <span class="asOperator">=</span> xData.factory.variable;
+        <span class="asReserved">for</span><span class="asBracket">(</span><span class="asVar">var</span> i<span class="asOperator">:</span><span class="asReserved">int</span> <span class="asOperator">=</span> 0;i <span class="asOperator">&lt;</span> xAcc.length<span class="asBracket">()</span>;i<span class="asOperator">++</span><span class="asBracket">)</span> <span class="asBracket">{</span>
+            accessors.push<span class="asBracket">(</span>xAcc<span class="asBracket">[</span>i<span class="asBracket">]</span>.@name.toString<span class="asBracket">())</span>;    
+        <span class="asBracket">}</span>        
+        desc.accessors <span class="asOperator">=</span> accessors;
+
+        <span class="asReserved">return</span> desc;
+    <span class="asBracket">}</span>
+
+<span class="asComment">/*------------------------------------------------------------------------------------
+// instance mgmt
+/*----------------------------------------------------------------------------------*/</span>
+    
+    <span class="asDoc">/** resolves an instance id passed from JS to an instance previously cached for representing in JS*/</span>
+    <span class="asReserved">private</span> <span class="asFunction">function</span> resolveRef<span class="asBracket">(</span>objRef<span class="asOperator">:</span><span class="asReserved">Number</span><span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">Object</span>
+    <span class="asBracket">{</span>
+        <span class="asReserved">return</span> <span class="asBracket">(</span>objRef <span class="asOperator">==</span> <span class="asOperator">-</span>1<span class="asBracket">)</span><span class="asOperator">?</span> baseObject<span class="asOperator">:</span>localInstanceMap<span class="asBracket">[</span>objRef<span class="asBracket">]</span>;
+    <span class="asBracket">}</span>
+    
+    <span class="asDoc">/** returns an id associated with the object provided for passing across the bridge to JS */</span>
+    <span class="asReserved">private</span> <span class="asFunction">function</span> getRef<span class="asBracket">(</span>obj<span class="asOperator">:</span><span class="asReserved">Object</span>,createIfNecessary<span class="asOperator">:</span><span class="asReserved">Boolean</span><span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">Number</span>
+    <span class="asBracket">{</span>
+        <span class="asVar">var</span> ref<span class="asOperator">:</span><span class="asReserved">Number</span>;
+        
+        <span class="asReserved">if</span><span class="asBracket">(</span>createIfNecessary<span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            <span class="asVar">var</span> newRef<span class="asOperator">:</span><span class="asReserved">Number</span> <span class="asOperator">=</span> nextID<span class="asOperator">++</span>;
+            localInstanceMap<span class="asBracket">[</span>newRef<span class="asBracket">]</span> <span class="asOperator">=</span> obj;
+            ref <span class="asOperator">=</span> newRef;
+        <span class="asBracket">}</span>
+        
+        <span class="asReserved">return</span> ref;        
+    <span class="asBracket">}</span>
+
+
+<span class="asComment">/*------------------------------------------------------------------------------------
+// function management
+/*----------------------------------------------------------------------------------*/</span>
+
+    <span class="asDoc">/** resolves a function ID passed from JS to a local function previously cached for representation in JS */</span>
+    <span class="asReserved">private</span> <span class="asFunction">function</span> resolveFunctionID<span class="asBracket">(</span>funcID<span class="asOperator">:</span><span class="asReserved">Number</span><span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">Function</span>
+    <span class="asBracket">{</span>
+        <span class="asReserved">return</span> localFunctionMap<span class="asBracket">[</span>funcID<span class="asBracket">]</span>;
+    <span class="asBracket">}</span>
+    
+    <span class="asDoc">/** associates a unique ID with a local function suitable for passing across the bridge to proxy in Javascript */</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> getFunctionID<span class="asBracket">(</span>f<span class="asOperator">:</span><span class="asReserved">Function</span>,createIfNecessary<span class="asOperator">:</span><span class="asReserved">Boolean</span><span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">Number</span>
+    <span class="asBracket">{</span>
+        <span class="asVar">var</span> ref<span class="asOperator">:</span><span class="asReserved">Number</span>;
+        
+        <span class="asReserved">if</span><span class="asBracket">(</span>createIfNecessary<span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            <span class="asVar">var</span> newID<span class="asOperator">:</span><span class="asReserved">Number</span> <span class="asOperator">=</span> nextID<span class="asOperator">++</span>;
+            localFunctionMap<span class="asBracket">[</span>newID<span class="asBracket">]</span> <span class="asOperator">=</span> f;
+            ref <span class="asOperator">=</span> newID;
+        <span class="asBracket">}</span>
+        
+        <span class="asReserved">return</span> ref;        
+    <span class="asBracket">}</span>
+
+    <span class="asDoc">/** returns a proxy function that represents a function defined in javascript. This function can be called syncrhonously, and will
+     * return any values returned by the JS function */</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> getRemoteFunctionProxy<span class="asBracket">(</span>functionID<span class="asOperator">:</span><span class="asReserved">Number</span>,createIfNecessary<span class="asOperator">:</span><span class="asReserved">Boolean</span><span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">Function</span>
+    <span class="asBracket">{</span>
+        <span class="asReserved">if</span> <span class="asBracket">(</span>remoteFunctionCache<span class="asBracket">[</span>functionID<span class="asBracket">]</span> <span class="asOperator">==</span> <span class="asReserved">null</span><span class="asBracket">)</span>
+        <span class="asBracket">{</span>
+            remoteFunctionCache<span class="asBracket">[</span>functionID<span class="asBracket">]</span> <span class="asOperator">=</span> <span class="asFunction">function</span><span class="asBracket">(</span>...args<span class="asBracket">)</span><span class="asOperator">:*</span>
+            <span class="asBracket">{</span>
+                <span class="asVar">var</span> externalArgs<span class="asOperator">:</span><span class="asReserved">Array</span> <span class="asOperator">=</span> args.concat<span class="asBracket">()</span>;
+                externalArgs.unshift<span class="asBracket">(</span>functionID<span class="asBracket">)</span>;
+                ExternalInterface.call<span class="asBracket">(</span><span class="asString">&quot;FABridge__invokeJSFunction&quot;</span>,serialize<span class="asBracket">(</span>externalArgs<span class="asBracket">))</span>;
+            <span class="asBracket">}</span>
+        <span class="asBracket">}</span>
+        <span class="asReserved">return</span> remoteFunctionCache<span class="asBracket">[</span>functionID<span class="asBracket">]</span>;
+    <span class="asBracket">}</span>
+
+
+    
+    
+<span class="asComment">/*------------------------------------------------------------------------------------
+// callbacks exposed to JS
+/*----------------------------------------------------------------------------------*/</span>
+
+    <span class="asDoc">/** called to fetch a named property off the instanced assicated with objID */</span>
+    <span class="asReserved">public</span> <span class="asFunction">function</span> js_getPropFromAS<span class="asBracket">(</span>objID<span class="asOperator">:</span><span class="asReserved">Number</span>,propName<span class="asOperator">:</span><span class="asReserved">String</span><span class="asBracket">)</span><span class="asOperator">:*</span>
+    <span class="asBracket">{</span>
+        <span class="asVar">var</span> obj<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> resolveRef<span class="asBracket">(</span>objID<span class="asBracket">)</span>;
+        <span class="asReserved">return</span> serialize<span class="asBracket">(</span>obj<span class="asBracket">[</span>propName<span class="asBracket">])</span>;
+    <span class="asBracket">}</span>
+
+    <span class="asDoc">/** called to set a named property on the instance associated with objID */</span>
+    <span class="asReserved">private</span> <span class="asFunction">function</span> js_setPropertyInAS<span class="asBracket">(</span>objID<span class="asOperator">:</span><span class="asReserved">Number</span>,propRef<span class="asOperator">:</span><span class="asReserved">String</span>,value<span class="asOperator">:*</span><span class="asBracket">)</span><span class="asOperator">:</span><span class="asReserved">void</span>
+    <span class="asBracket">{</span>
+        <span class="asVar">var</span> obj<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> resolveRef<span class="asBracket">(</span>objID<span class="asBracket">)</span>;
+        obj<span class="asBracket">[</span>propRef<span class="asBracket">]</span> <span class="asOperator">=</span> deserialize<span class="asBracket">(</span>value<span class="asBracket">)</span>;
+    <span class="asBracket">}</span>
+
+    <span class="asDoc">/** accessor for retrieveing a proxy to the root object from JS */</span>
+    <span class="asReserved">private</span> <span class="asFunction">function</span> js_getRoot<span class="asBracket">()</span><span class="asOperator">:*</span>
+    <span class="asBracket">{</span>
+        <span class="asReserved">return</span> serialize<span class="asBracket">(</span>baseObject<span class="asBracket">)</span>;
+    <span class="asBracket">}</span>
+
+    <span class="asDoc">/** called to invoke a function or closure associated with funcID */</span>
+    <span class="asReserved">private</span> <span class="asFunction">function</span> js_invokeFunction<span class="asBracket">(</span>funcID<span class="asOperator">:</span><span class="asReserved">Number</span>,args<span class="asOperator">:</span><span class="asReserved">Object</span><span class="asBracket">)</span><span class="asOperator">:*</span>
+    <span class="asBracket">{</span>
+        <span class="asVar">var</span> result<span class="asOperator">:*</span>;
+        
+        <span class="asVar">var</span> func<span class="asOperator">:</span><span class="asReserved">Function</span> <span class="asOperator">=</span> resolveFunctionID<span class="asBracket">(</span>funcID<span class="asBracket">)</span>;
+        <span class="asReserved">if</span><span class="asBracket">(</span>func <span class="asOperator">!=</span> <span class="asReserved">null</span><span class="asBracket">)</span>
+            result <span class="asOperator">=</span> func.apply<span class="asBracket">(</span><span class="asReserved">null</span>,deserialize<span class="asBracket">(</span>args<span class="asBracket">))</span>;
+        <span class="asReserved">return</span> serialize<span class="asBracket">(</span>result<span class="asBracket">)</span>;
+    <span class="asBracket">}</span>
+
+    <span class="asDoc">/** called ot invoke a named method on the object associated with objID */</span>
+    <span class="asReserved">private</span> <span class="asFunction">function</span> js_invokeMethod<span class="asBracket">(</span>objID<span class="asOperator">:</span><span class="asReserved">Number</span>,methodName<span class="asOperator">:</span><span class="asReserved">String</span>,args<span class="asOperator">:</span><span class="asReserved">Object</span><span class="asBracket">)</span><span class="asOperator">:*</span>
+    <span class="asBracket">{</span>
+        <span class="asVar">var</span> obj<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> resolveRef<span class="asBracket">(</span>objID<span class="asBracket">)</span>;
+        <span class="asVar">var</span> result<span class="asOperator">:*</span>;
+
+        <span class="asReserved">return</span> serialize<span class="asBracket">(</span> obj<span class="asBracket">[</span>methodName<span class="asBracket">]</span>.apply<span class="asBracket">(</span><span class="asReserved">null</span>,deserialize<span class="asBracket">(</span>args<span class="asBracket">))</span> <span class="asBracket">)</span>;
+    <span class="asBracket">}</span>
+    
+    <span class="asReserved">private</span> <span class="asFunction">function</span> js_releaseASObjects<span class="asBracket">()</span>
+    <span class="asBracket">{</span>
+        localTypeMap <span class="asOperator">=</span> <span class="asBracket">{}</span>;
+        localInstanceMap <span class="asOperator">=</span> <span class="asBracket">{}</span>;
+        localFunctionMap <span class="asOperator">=</span> <span class="asBracket">{}</span>;
+    <span class="asBracket">}</span>
+    <span class="asReserved">private</span> <span class="asFunction">function</span> js_create<span class="asBracket">(</span>className<span class="asOperator">:</span><span class="asReserved">String</span><span class="asBracket">)</span><span class="asOperator">:*</span>
+    <span class="asBracket">{</span>
+        <span class="asVar">var</span> c<span class="asOperator">:</span>Class <span class="asOperator">=</span> getClassByName<span class="asBracket">(</span>className<span class="asBracket">)</span>;
+        <span class="asVar">var</span> instance<span class="asOperator">:</span><span class="asReserved">Object</span> <span class="asOperator">=</span> <span class="asReserved">new</span> c<span class="asBracket">()</span>;
+        <span class="asReserved">return</span> serialize<span class="asBracket">(</span>instance<span class="asBracket">)</span>;        
+    <span class="asBracket">}</span>
+    
+<span class="asBracket">}</span>
+<span class="asBracket">}</span></pre></body>
+</html>
