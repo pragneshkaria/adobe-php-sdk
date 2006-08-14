@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="absolute" creationComplete="initApplication()">
+   <mx:Form x="22" y="10" width="356">
+      <mx:HBox>
+         <mx:Label text="Username"/>
+         <mx:TextInput id="username" width="159"/>
+      </mx:HBox>
+      <mx:HBox>
+         <mx:Label text="Email Address"/>
+         <mx:TextInput id="emailaddress"/>
+      </mx:HBox>
+      <mx:Button label="Submit" click="submitUser()"/>
+   </mx:Form>
+	<mx:DataGrid id="dgUserRequest" x="22" y="128" dataProvider="{dataProvider}" width="356">
+		<mx:columns>
+			<mx:DataGridColumn headerText="User ID" dataField="userid" width="60"/>
+			<mx:DataGridColumn headerText="User Name" dataField="username"/>
+			<mx:DataGridColumn headerText="Email Address" dataField="emailaddress"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Label x="22" y="303" text="Email Address"/>
+	<mx:TextInput x="115" y="301" id="selectedemailaddress" text="{dgUserRequest.selectedItem.emailaddress}"/>
+	<mx:Label x="22" y="333" text="Error Message"/>
+	<mx:TextInput id="errMessage" text="{errorMsg}" x="115" y="331"/>
+	<mx:Script>
+	<![CDATA[
+			[Bindable]
+			public var dataProvider:Array;
+			[Bindable]
+			public var errorMsg:String;
+
+			import flash.net.Responder;
+
+			public var gateway:RemotingConnection;
+
+			public function initApplication():void {
+				gateway = new RemotingConnection("http://localhost/libraries/amfphp/gateway.php");
+				getUsers();
+			}
+
+			public function getUsers():void {
+				gateway.call("simple_amfphp.getUsers", new Responder(getResult, onFault));
+			}
+
+			public function getResult(result:Array ):void {
+				dataProvider = result;
+			}
+
+			public function submitUser():void {
+				var newUser:Object = new Object();
+				newUser.username=username.text;
+				newUser.emailaddress=emailaddress.text;
+				gateway.call("simple_amfphp.submitUser", new Responder(null, onFault), newUser);
+				getUsers();
+			}
+
+			public function onFault(fault:String ):void {
+				errorMsg = fault;
+				trace(fault);
+			}		
+	]]>
+	</mx:Script>
+</mx:Application>
