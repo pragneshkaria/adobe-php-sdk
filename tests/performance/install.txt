@@ -1,0 +1,14 @@
+Put ZendFlex_PHPPrintXML.mxml and RemotingConnection.as into a new Flex project.
+
+Put sample.php in the services/ directory of AMFPHP (http://www.amfphp.org if you 
+haven't got it).
+
+Put print_xml.php and print_json.php in the web server directory.  For print_json.php
+ you'll need the ZendFramework (http://framework.zend.com) installed.
+
+In ZendFlex_PHPPrintXML.mxml, modify the locations of the php scripts, if you need to.
+
+
+Run ZendFlex_PHPPrintXML.mxml as a Flex application.  The three buttons load the data 
+for you in the three different ways.  The start time, end time and elapsed time are 
+displayed at the bottom.
