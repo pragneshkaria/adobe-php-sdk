@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="400" backgroundGradientColors="[#ffffff, #ffffff]">
+	<fab:FABridge xmlns:fab="bridge.*" />
+	<mx:Script>
+        <![CDATA[
+    	import mx.charts.events.ChartItemEvent;
+        import mx.collections.ArrayCollection;
+		import com.adobe.serialization.json.JSON;
+		//import mx.controls.Alert;
+		
+		public function bindJSONToChart( JSONString:String ):void {
+			var arr:Array = (JSON.decode(JSONString) as Array); 
+			
+			linechart.dataProvider = new ArrayCollection(arr);
+		}
+		
+		public function doChartClicked(clickEvent:ChartItemEvent):void
+		{
+			//SAlert.show( clickEvent.hitData.item.@hits );
+			if( ExternalInterface.available )
+				ExternalInterface.call("chartClicked", clickEvent.hitData.item);
+		}
+		]]>
+    </mx:Script>
+	<mx:LineChart id="linechart"
+            paddingLeft="5" paddingRight="5" 
+            showDataTips="true" left="10" right="10" top="10" bottom="10" itemClick="doChartClicked(event)">
+                
+            <mx:horizontalAxis>
+                <mx:CategoryAxis categoryField="@date" displayName="Date"/>
+            </mx:horizontalAxis>
+
+            <mx:series>
+                <mx:LineSeries yField="@hits" displayName="Hits"/>
+            </mx:series>
+	</mx:LineChart>
+</mx:Application>

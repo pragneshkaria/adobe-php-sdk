@@ -1,0 +1,194 @@
+<!-- saved from url=(0014)about:internet -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<script src="AC_OETags.js" language="javascript"></script>
+<style>
+body { margin: 0px; overflow:hidden }
+.SelectedFeedburnerItem {	background-color: #777; color: #000; }
+.HoverFeedburnerItem { color: #fc0; }
+</style>
+<script language="JavaScript" type="text/javascript" src="../../../libraries/spry/includes/xpath.js"></script>
+<script language="JavaScript" type="text/javascript" src="../../../libraries/spry/includes/SpryData.js"></script>
+<script language="JavaScript" type="text/javascript" src="./json.js"></script>
+<script language="JavaScript" type="text/javascript" src="./fulljsmin.js"></script>
+
+<script language="JavaScript" type="text/javascript">
+var dsFeedburner = new Spry.Data.XMLDataSet("./getdata.php", "/rsp/feed/entry");
+<!--
+// Objects that wish to observe a data set must define a callback method
+// for each notification it wishes to receive. In this example, our object
+// will only be called for PostLoad and DataChanged notifications.
+
+var ChartData;
+
+var obs = new Object;
+obs.onPostLoad = function(notifier, data)
+{
+	Spry.Debug.trace("obs.onPostLoad called!");
+};
+
+var notifierData;
+
+obs.onDataChanged = function(notifier, data)
+{
+		notifierData = notifier.data;
+		try { 
+			with( FABridge.example.root()) {
+				bindJSONToChart( jsmin( toJsonString( notifier.data ) ) );
+				var callback = function() { 
+					//highlight relevant items here
+					
+				}
+				linechart().addEventListener("click",callback);
+			}
+		}
+		catch( e )
+		{
+		    //notiferData = notifier.data;
+		    var initCallback = function( )
+		     {
+		         with( FABridge.example.root() ) {
+		         	bindJSONToChart( jsmin( toJsonString( notifierData ) ) );
+				
+				 	var callback = function() { 
+						//highlight relevant items here
+					
+					}
+				
+					linechart().addEventListener("click",callback);
+				}
+		     }
+		     FABridge.addInitializationCallback("example",initCallback);
+     
+     	     Spry.Debug.trace( "Error in onDataChanged"+e );
+	    }
+	
+	Spry.Debug.trace(toJsonString( notifier.data ));
+};
+
+dsFeedburner.addObserver(obs);
+
+// If you want to catch all notifications, you can simply define a callback
+// function and register it as an observer. When called, the first arg passed
+// into your callback function will be the name of the notification method that
+// would have been invoked had your observer been an object, for example "onPreLoad",
+// "onPostLoad", "onDataChanged", etc.
+
+function MyObserverCallback(notificationType, notifier, data)
+{
+	Spry.Debug.trace("Observer Callback: " + notificationType);
+}
+
+dsFeedburner.addObserver(MyObserverCallback);
+
+function doChartClicked( eventDataArray )
+{
+	
+}
+-->
+</script>
+<script src="../../../libraries/fabridge/FABridge.js" ></script>
+<script language="JavaScript" type="text/javascript">
+<!--
+// -----------------------------------------------------------------------------
+// Globals
+// Major version of Flash required
+var requiredMajorVersion = 9;
+// Minor version of Flash required
+var requiredMinorVersion = 0;
+// Minor version of Flash required
+var requiredRevision = 0;
+// -----------------------------------------------------------------------------
+// -->
+</script>
+</head>
+
+<body scroll="no">
+<script language="JavaScript" type="text/javascript" src="history.js"></script>
+<script language="JavaScript" type="text/javascript">
+<!--
+// Version check for the Flash Player that has the ability to start Player Product Install (6.0r65)
+var hasProductInstall = DetectFlashVer(6, 0, 65);
+
+// Version check based upon the values defined in globals
+var hasRequestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
+
+
+// Check to see if a player with Flash Product Install is available and the version does not meet the requirements for playback
+if ( hasProductInstall && !hasRequestedVersion ) {
+	// MMdoctitle is the stored document.title value used by the installation process to close the window that started the process
+	// This is necessary in order to close browser windows that are still utilizing the older version of the player after installation has completed
+	// DO NOT MODIFY THE FOLLOWING FOUR LINES
+	// Location visited after installation is complete if installation is required
+	var MMPlayerType = (isIE == true) ? "ActiveX" : "PlugIn";
+	var MMredirectURL = window.location;
+    document.title = document.title.slice(0, 47) + " - Flash Player Installation";
+    var MMdoctitle = document.title;
+
+	AC_FL_RunContent(
+		"src", "playerProductInstall",
+		"FlashVars", "MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
+		"width", "400",
+		"height", "400",
+		"align", "middle",
+		"id", "Spry_Flex_Graph",
+		"quality", "high",
+		"bgcolor", "#869ca7",
+		"name", "Spry_Flex_Graph",
+		"allowScriptAccess","sameDomain",
+		"type", "application/x-shockwave-flash",
+		"pluginspage", "http://www.adobe.com/go/getflashplayer"
+	);
+} else if (hasRequestedVersion) {
+	// if we've detected an acceptable version
+	// embed the Flash Content SWF when all tests are passed
+	AC_FL_RunContent(
+			"src", "Spry_Flex_Graph",
+			"width", "400",
+			"height", "400",
+			"align", "middle",
+			"id", "Spry_Flex_Graph",
+			"quality", "high",
+			"bgcolor", "#869ca7",
+			"name", "Spry_Flex_Graph",
+			"flashvars",'bridgeName=example',
+			"allowScriptAccess","sameDomain",
+			"type", "application/x-shockwave-flash",
+			"pluginspage", "http://www.adobe.com/go/getflashplayer"
+	);
+  } else {  // flash is too old or we can't detect the plugin
+    var alternateContent = 'Alternate HTML content should be placed here. '
+  	+ 'This content requires the Adobe Flash Player. '
+   	+ '<a href=http://www.adobe.com/go/getflash/>Get Flash</a>';
+    document.write(alternateContent);  // insert non-flash content
+  }
+// -->
+</script>
+<noscript>
+  	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+			id="Spry_Flex_Graph" width="400" height="400"
+			codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
+			<param name="movie" value="./Spry_Flex_Graph.swf" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#869ca7" />
+			<param name="allowScriptAccess" value="sameDomain" />
+			<embed src="./Spry_Flex_Graph.swf" quality="high" bgcolor="#869ca7"
+				width="400" height="400" name="Spry_Flex_Graph" align="middle"
+				play="true"
+				loop="false"
+				quality="high"
+				allowScriptAccess="sameDomain"
+				type="application/x-shockwave-flash"
+				pluginspage="http://www.adobe.com/go/getflashplayer">
+			</embed>
+	</object>
+</noscript>
+<table border="1" spry:region="dsFeedburner">
+	<tr><th onClick="dsFeedburner.sort('@date');">Date</th><th onClick="dsFeedburner.sort('@hits');">Hits</th></tr>
+	<tr onClick="" spry:repeat="dsFeedburner" spry:select="SelectedFeedburnerItem" spry:hover="HoverFeedburnerItem"><td>{@date}</td><td>{@hits}</td></tr>
+</table>
+<iframe name="_history" src="history.htm" frameborder="0" scrolling="no" width="22" height="0"></iframe>
+</body>
+</html>
