@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+  <!--This information is part of the FeedBurner Awareness API. If you want to hide this information, you may do so via your FeedBurner Account.-->
+  <feed id="412263" uri="adobe/mpotter">
+    <entry date="2006-07-01" circulation="0" hits="0"/>
+    <entry date="2006-07-02" circulation="0" hits="0"/>
+    <entry date="2006-07-03" circulation="0" hits="0"/>
+    <entry date="2006-07-04" circulation="0" hits="0"/>
+    <entry date="2006-07-05" circulation="7" hits="12"/>
+    <entry date="2006-07-06" circulation="17" hits="57"/>
+    <entry date="2006-07-07" circulation="14" hits="102"/>
+    <entry date="2006-07-08" circulation="9" hits="26"/>
+    <entry date="2006-07-09" circulation="7" hits="17"/>
+    <entry date="2006-07-10" circulation="15" hits="56"/>
+    <entry date="2006-07-11" circulation="12" hits="145"/>
+    <entry date="2006-07-12" circulation="20" hits="185"/>
+    <entry date="2006-07-13" circulation="23" hits="221"/>
+    <entry date="2006-07-14" circulation="26" hits="214"/>
+    <entry date="2006-07-15" circulation="15" hits="113"/>
+    <entry date="2006-07-16" circulation="13" hits="97"/>
+    <entry date="2006-07-17" circulation="30" hits="288"/>
+  </feed>
+</rsp>
