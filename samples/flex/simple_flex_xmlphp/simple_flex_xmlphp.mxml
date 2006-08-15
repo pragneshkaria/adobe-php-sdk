@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
+   <mx:Script>
+		<![CDATA[
+			import mx.rpc.events.ResultEvent;
+			import mx.collections.ArrayCollection;
+			public var applicationData:ArrayCollection;
+			
+			[Bindable]
+ 	  		public var hostname:String = ExternalInterface.call("window.location.protocol.toString") + "//"+ ExternalInterface.call("window.location.hostname.toString");
+   		
+			public function sendXML():void
+			{
+				http_service.send();
+			}
+			
+			public function handleXML(event:ResultEvent):void
+			{
+				datagrid.dataProvider = event.result.rows.row;
+			}
+		]]>
+	</mx:Script>
+	<mx:HTTPService result="handleXML(event)" url="{hostname}/adobe_php_sdk/samples/simple_flex_xmlphp/print_xml.php?rows={num_rows.value}" id="http_service">
+	</mx:HTTPService>
+	<mx:DataGrid id="datagrid" right="10" left="10" top="50" bottom="100">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Column 1" dataField="col1"/>
+			<mx:DataGridColumn headerText="Column 2" dataField="col2"/>
+			<mx:DataGridColumn headerText="Column 3" dataField="col3"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Button x="11" y="10" label="Call XML" click="sendXML()"/>
+	<mx:NumericStepper id="num_rows" x="288" y="10" minimum="2500" maximum="40000" stepSize="2500"/>
+</mx:Application>
