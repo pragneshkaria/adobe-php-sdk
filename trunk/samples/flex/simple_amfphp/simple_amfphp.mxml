@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="absolute" creationComplete="initApplication()">
+   <mx:Script>
+   	<![CDATA[
+   		[Bindable]
+   		public var hostname:String = ExternalInterface.call("window.location.protocol.toString") + "//"+ ExternalInterface.call("window.location.hostname.toString");
+   	]]>
+   </mx:Script>
    <mx:Form x="22" y="10" width="356">
       <mx:HBox>
          <mx:Label text="Username"/>
@@ -34,7 +40,7 @@
 			public var gateway:RemotingConnection;
 
 			public function initApplication():void {
-				gateway = new RemotingConnection("http://localhost/libraries/amfphp/gateway.php");
+				gateway = new RemotingConnection(hostname+"/libraries/amfphp/gateway.php");
 				getUsers();
 			}
 
