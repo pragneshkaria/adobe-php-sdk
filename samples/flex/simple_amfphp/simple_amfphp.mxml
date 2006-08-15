@@ -40,7 +40,7 @@
 			public var gateway:RemotingConnection;
 
 			public function initApplication():void {
-				gateway = new RemotingConnection(hostname+"/libraries/amfphp/gateway.php");
+				gateway = new RemotingConnection(hostname+"/adobe_php_sdk/libraries/amfphp/gateway.php");
 				getUsers();
 			}
 
