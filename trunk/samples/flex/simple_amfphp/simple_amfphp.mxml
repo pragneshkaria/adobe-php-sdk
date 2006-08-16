@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="absolute" creationComplete="initApplication()">
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onInit()" xmlns="*" layout="absolute" creationComplete="initApplication()">
    <mx:Script>
    	<![CDATA[
    		[Bindable]
-   		public var hostname:String = ExternalInterface.call("window.location.protocol.toString") + "//"+ ExternalInterface.call("window.location.hostname.toString");
+   		public var hostname:String = "http://localhost";
+   		
+   		public function onInit():void
+   		{
+   			var protocol:String = ExternalInterface.call("window.location.protocol.toString");
+   			 	  			
+   			if( protocol != "file:" )
+ 	  			hostname = protocol + "//"+ ExternalInterface.call("window.location.hostname.toString");
+  		}
    	]]>
    </mx:Script>
    <mx:Form x="22" y="10" width="356">
