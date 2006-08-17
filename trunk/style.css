@@ -216,7 +216,7 @@ white-space: nowrap;
 /*********** #navBar link styles ***********/
 
 #navBar ul a:link, #navBar ul a:visited {display: block;}
-#navBar ul {list-style: none; margin: 0; padding: 0;}
+#navBar ul {margin: 10px; padding: 0px;}
 
 /* hack to fix IE/Win's broken rendering of block-level anchors in lists */
 #navBar li {border-bottom: 1px solid #EEE;}
