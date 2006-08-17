@@ -11,12 +11,12 @@
      the only difference between the two is the stylesheet they use -->
 <body>
 <div id="masthead">
-  <h1 id="siteName">(unofficial) Adobe PHP SDK Libraries </h1>
+  <h1 id="siteName">(unofficial) Adobe PHP SDK</h1>
   <div id="globalNav"> <a href="../samples">Samples Main</a> | <a href="flex">Flex Samples</a> | <a href="ajax">Ajax Samples</a> | <a href="flex_ajax">Flex / Ajax Samples</a></div>
 </div>
 <!-- end masthead -->
 <div id="content">
-  <h2 id="pageName">Welcome to the (unofficial) Adobe PHP SDK </h2>
+  <h2 id="pageName">(unofficial) Adobe PHP SDK Samples </h2>
   <div class="story">
     <h3>Getting Started</h3>
     <ol>
@@ -24,20 +24,21 @@
         <ol>
           <li>Ajax Samples - These samples make use of Adobe Ajax technology (Spry framework) and PHP.
             <ol>
-              <li>Check out <a href="http://labs.adobe.com/technologies/spry/demos/">http://labs.adobe.com/technologies/spry/demos/</a> for great demos using PHP and the Spry framework. </li>
+              <li>Check out <a href="http://labs.adobe.com/technologies/spry/demos/">http://labs.adobe.com/technologies/spry/demos/</a> for great demos using the Spry framework. </li>
             </ol>
           </li>
           <li>Flex Samples - These samples make use of Adobe Flex technology and PHP.
             <ol>
-              <li><span class="code"><a href="flex/simple_amfphp/">simple_amfphp</a></span>/ - This sample shows the use of AMFPHP to retrieve a list of items from a MySQL database. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
+              <li><span class="code"><a href="flex/simple_flex_xmlphp/" class="code">simple_flex_xmlphp</a></span> - Beginner - This sample shows the use of Flex to read in XML created by a PHP script. There is no database required for this sample. </li>
+              <li><a href="flex/simple_flex_php/" class="code">simple_flex_php</a> - Beginner - This sample shows printing out records from a MySQL database in XML format, and using a Flex form to populate that database. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
+                <strong>Note: You must create the flextest database first. </strong>Use this <a href="flex/simple_amfphp/flextest.sql">flextest.sql</a> file to create the database and tables. </li>
+			  <li><span class="code"><a href="flex/simple_amfphp/">simple_amfphp</a></span> - Intermediate - Same example as simple_flex_php, but using AMFPHP to transfer data back from MySQL, rather than printing out XML. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
                   <strong>Note: You must create the flextest database first. </strong>Use this <a href="flex/simple_amfphp/flextest.sql">flextest.sql</a> file to create the database and tables. </li>
-              <li><a href="flex/simple_flex_php/" class="code">simple_flex_php</a> - This sample shows the use of PHP to output XML, with a Flex front end to read that XML. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. </li>
-              <li><a href="flex/simple_flex_xmlphp/" class="code">simple_flex_xmlphp</a> - This sample shows the use of Flex to read in XML created by a PHP script. The difference in this sample is that there's no database required. </li>
             </ol>
           </li>
           <li>Flex / Ajax Samples - These samples make use of both Adobe Ajax technology (Spry framework) and Adobe Flex, with PHP on the backend.
             <ol>
-              <li><a href="flex_ajax/feedburner/index.html">feedburner/</a> - This sample shows retreiving data from Feedburner via Ajax, then using that data to populate a graph made with Adobe Flex. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>. </li>
+              <li><span class="code"><a href="flex_ajax/feedburner/index.html">feedburner</a></span><a href="flex_ajax/feedburner/index.html"></a> - This sample shows retreiving data from Feedburner via Ajax, then using that data to populate a graph made with Adobe Flex. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>. </li>
             </ol>
           </li>
         </ol>
