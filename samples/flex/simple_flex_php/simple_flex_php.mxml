@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onInit()" xmlns="*" layout="absolute" creationComplete="userRequest.send()">
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onInit()" xmlns="*" layout="absolute">
    <mx:Script>
    	<![CDATA[
    		[Bindable]
@@ -11,6 +11,8 @@
    			 	  			
    			if( protocol != "file:" )
  	  			hostname = protocol + "//"+ ExternalInterface.call("window.location.hostname.toString");
+ 	  			
+ 	  		userRequest.send();
   		}
    	]]>
    </mx:Script>
