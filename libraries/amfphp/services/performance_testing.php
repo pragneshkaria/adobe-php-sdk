@@ -1,8 +1,8 @@
 <?php
 // Create new service for PHP Remoting as Class
-class sample
+class performance_testing
 {
-    function sample () 
+    function performance_testing () 
 	{
         // Define the methodTable for this class in the constructor
         $this->methodTable = array(
