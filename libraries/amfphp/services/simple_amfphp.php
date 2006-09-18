@@ -5,10 +5,10 @@ Define('DATABASE_PASSWORD', 'p@ssword');
 Define('DATABASE_NAME', 'flextest');
 
 // Create new service for AMFPHP Remoting as Class
-class sample {
+class simple_amfphp {
 	var $mysqli;
 
-	function sample()  {
+	function simple_amfphp()  {
 		// Define the methodTable for this class in the constructor
 		$this->methodTable = array(
 		"getUsers" => array(
