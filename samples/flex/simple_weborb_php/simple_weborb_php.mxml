@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="absolute" 
+	creationComplete="initApplication()">
+	<mx:Script>
+	<![CDATA[
+		import mx.rpc.remoting.RemoteObject;
+		import mx.controls.Alert;
+		import mx.rpc.events.ResultEvent
+		import mx.rpc.events.FaultEvent
+
+		[Bindable]
+		public var dataProvider:Array;
+
+		private var remoteObject:RemoteObject;
+
+		public function initApplication():void {
+			remoteObject = new RemoteObject();
+			remoteObject.destination = "SimpleWebOrbPHPDestination";
+			remoteObject.getUsers.addEventListener("result", getUsersResult); 
+			remoteObject.addEventListener("fault", onFault);
+			getUsers();
+		}
+
+		public static function onFault(event:FaultEvent):void {
+			Alert.show(event.fault.faultString, 'Error');
+		}
+
+		private function getUsers():void {
+			remoteObject.getUsers();
+		}
+
+		private function getUsersResult(event:ResultEvent):void {
+			var getUsersArray:Array = event.result as Array;
+			dataProvider = getUsersArray;
+		}
+
+		public function submitUser():void {
+			var newUser:Array = new Array();
+			newUser.username=username.text;
+			newUser.emailaddress=emailaddress.text;
+			username.text='';
+			emailaddress.text='';
+			remoteObject.submitUser(newUser);
+ 			getUsers();
+		}
+
+	]]>
+	</mx:Script>
+	<mx:Form x="22" y="10" width="356">
+		<mx:HBox>
+			<mx:Label text="Username"/>
+			<mx:TextInput id="username" width="159"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Email Address"/>
+			<mx:TextInput id="emailaddress"/>
+		</mx:HBox>
+		<mx:Button label="Submit" click="submitUser()"/>
+	</mx:Form>
+	<mx:DataGrid id="dgUserRequest" x="22" y="128" dataProvider="{dataProvider}" width="356">
+		<mx:columns>
+			<mx:DataGridColumn headerText="User ID" dataField="userid" width="60"/>
+			<mx:DataGridColumn headerText="User Name" dataField="username"/>
+			<mx:DataGridColumn headerText="Email Address" dataField="emailaddress"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Label x="39" y="294" text="User Name"/>
+	<mx:TextInput x="113" y="292" id="selectedusername" text="{dgUserRequest.selectedItem.username}"/>
+	<mx:Label x="22" y="320" text="Email Address"/>
+	<mx:TextInput x="113" y="318" id="selectedemailaddress" text="{dgUserRequest.selectedItem.emailaddress}"/>
+</mx:Application>
