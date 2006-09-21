@@ -24,7 +24,7 @@ examples, which are posted on adobe-php-sdk@code.google.com:
     simple_amfphp         Requires AMFPHP: http://www.amfphp.org
     simple_flex_php
     simple_flex_xmlphp
-    simple_weborb_php     Requires WebORB for PHP: http://www.amfphp.org
+    simple_weborb_php     Requires WebORB for PHP: http://themidnightcoders.com/weborb/php
 
 Specifically this JavaScript script deploys Web server elements, as follows:
 
