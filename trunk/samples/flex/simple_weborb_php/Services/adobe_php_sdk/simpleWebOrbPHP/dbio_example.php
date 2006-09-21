@@ -43,7 +43,40 @@ class dbio_example {
    		throw new Exception($msg);
 		}
 	}
-}
 
+	public function deleteUser($userid) {
+		$query = "DELETE FROM users WHERE userid='$userid'";
+		if (!$result=$this->mysqli->query($query)) {
+			$msg=$this->err_prefix."DELETE query error: ".$this->mysqli->error;
+			$this->mysqli->close();
+   		throw new Exception($msg);
+		}
+	}
+
+	// --- PHP Exception examples for testing and evaluation of Flex 2 Exception Handling ---
+	// --- NEVER PART OF A REAL SOLUTION ---
+
+	public function submitUserException(array $user) {
+		# Escape special characters 
+		$name=$this->mysqli->real_escape_string(trim($user['username']));
+		$addr=$this->mysqli->real_escape_string(trim($user['emailaddress']));
+		$query = "INSERT INTO xxxusers VALUES ('', '$name', '$addr')";
+		if (!$result=$this->mysqli->query($query)) {
+			$msg=$this->err_prefix."INSERT query error: ".$this->mysqli->error;
+			$this->mysqli->close();
+   		throw new Exception($msg);
+		}
+	}
+	
+	public function deleteUserException($userid) {
+		$query = "DELETE FROM usersxxxx WHERE userid='$userid'";
+		if (!$result=$this->mysqli->query($query)) {
+			$msg=$this->err_prefix."DELETE query error: ".$this->mysqli->error;
+			$this->mysqli->close();
+   		throw new Exception($msg);
+		}
+	}
+
+}
 
 ?>
