@@ -16,7 +16,6 @@
 
 		public function initApplication():void {
 			btnDelete.addEventListener(MouseEvent.CLICK, deleteUser);
-			btnDeleteException.addEventListener(MouseEvent.CLICK, deleteUserException);
 			remoteObject = new RemoteObject();
 			remoteObject.destination = "SimpleWebOrbPHPDestination";
 			remoteObject.getUsers.addEventListener("result", getUsersResult); 
@@ -50,13 +49,6 @@
  			getUsers();
 		}
 
-		public function submitUserException():void {
-			var newUser:Array = new Array();
-			newUser.username='Foo Bogus';
-			newUser.emailaddress='foo@bogus-company.com';
-			remoteObject.submitUserException(newUser);
- 		}
-
 		public function deleteUser():void {
 			var userid:int;
 			userid=dgUserRequest.selectedItem.userid;
@@ -66,17 +58,10 @@
 			remoteObject.deleteUser(userid);
 			getUsers();
 		}
-		public function deleteUserException():void {
-			var userid:int;
-			userid=dgUserRequest.selectedItem.userid;
-			// Only delete flextest database records with a valid userid
-			if (userid==0)
-				return;
-			remoteObject.deleteUserException(userid);
-		}
+
 	]]>
 	</mx:Script>
-	<mx:Form x="22" y="10" width="356" height="138">
+	<mx:Form x="22" y="10" width="356">
 		<mx:HBox>
 			<mx:Label text="Username"/>
 			<mx:TextInput id="username" width="159"/>
@@ -86,19 +71,17 @@
 			<mx:TextInput id="emailaddress"/>
 		</mx:HBox>
 		<mx:Button label="Submit" click="submitUser()"/>
-		<mx:Button label="Submit (With PHP Exception)" click="submitUserException()"/>
 	</mx:Form>
-	<mx:DataGrid id="dgUserRequest" x="22" y="146" dataProvider="{dataProvider}" width="356">
+	<mx:DataGrid id="dgUserRequest" x="22" y="128" dataProvider="{dataProvider}" width="356">
 		<mx:columns>
 			<mx:DataGridColumn headerText="User ID" dataField="userid" width="60"/>
 			<mx:DataGridColumn headerText="User Name" dataField="username"/>
 			<mx:DataGridColumn headerText="Email Address" dataField="emailaddress"/>
 		</mx:columns>
 	</mx:DataGrid>
-	<mx:Label x="39" y="314" text="User Name"/>
-	<mx:TextInput x="113" y="312" id="selectedusername" text="{dgUserRequest.selectedItem.username}"/>
-	<mx:Label x="22" y="344" text="Email Address"/>
-	<mx:TextInput x="113" y="342" id="selectedemailaddress" text="{dgUserRequest.selectedItem.emailaddress}"/>
-	<mx:Button x="113" y="372" label="Delete User" click="deleteUser()" id="btnDelete"/>
-	<mx:Button x="113" y="402" label="Delete User (With PHP Exception)" click="deleteUserException()" id="btnDeleteException"/>
+	<mx:Label x="39" y="294" text="User Name"/>
+	<mx:TextInput x="113" y="292" id="selectedusername" text="{dgUserRequest.selectedItem.username}"/>
+	<mx:Label x="22" y="320" text="Email Address"/>
+	<mx:TextInput x="113" y="318" id="selectedemailaddress" text="{dgUserRequest.selectedItem.emailaddress}"/>
+	<mx:Button x="113" y="348" label="Delete User" click="deleteUser()" id="btnDelete"/>
 </mx:Application>
