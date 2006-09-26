@@ -1,47 +1,82 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<!-- DW6 -->
+<html>
+
 <head>
-<!-- Copyright 2005 Macromedia, Inc. All rights reserved. -->
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>(unofficial) Adobe PHP SDK</title>
-<link rel="stylesheet" href="../style.css" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title></title>
+<link href="../style.css" rel="stylesheet" type="text/css">
 </head>
-<!-- The structure of this file is exactly the same as 2col_leftNav.html;
-     the only difference between the two is the stylesheet they use -->
-<body>
-<div id="masthead">
-  <h1 id="siteName">(unofficial) Adobe PHP SDK</h1>
-  <div id="globalNav"> <a href="../samples">Samples Main</a> | <a href="../samples/flex">Flex Samples</a> | <a href="../samples/ajax">Ajax Samples</a> | <a href="../samples/flex_ajax">Flex / Ajax Samples</a></div>
-</div>
-<!-- end masthead -->
-<div id="content">
-  <h2 id="pageName">(unofficial) Adobe PHP SDK Libraries </h2>
-  <div class="story">
-    <h3>Getting Started</h3>
-    <ol>
-      <li>There are 4 libraries that you need to run the samples.
+
+<body bgcolor="#F8F8F8" topmargin="0" marginheight="0">
+
+<div align="center">
+
+<table border="0" width="850" cellspacing="0" cellpadding="0">
+	<tr>
+		<td valign="top" colspan="3" width="850" align="center">
+		<img border="0" src="../images/hdr01.gif" width="850" height="42"><br>
+		<a href="../index.html">
+		<img border="0" src="../images/hdr02.gif" width="249" height="110"></a><img border="0" src="../images/hdr03.gif" width="353" height="110"><img border="0" src="../images/hdr03.jpg" width="189" height="110"><img border="0" src="../images/hdr04.gif" width="59" height="110"></td>
+	</tr>
+	<tr>
+		<td valign="top" bgcolor="#CCCCCC" width="1"><img border="0" src="../images/spacer.gif" width="1" height="100%"></td>
+		<td valign="top" width="848" bgcolor="#FFFFFF" align="center">
+		<div id="Nav">
+		<img border="0" src="../images/hdr05.gif" width="848" height="23"><br>
+		<a href="../samples">SAMPLES MAIN</a>&nbsp; |&nbsp; <a href="../samples/flex">FLEX SAMPLES</a>&nbsp; |&nbsp; <a href="../samples/ajax">AJAX SAMPLES</a>&nbsp; |&nbsp; <a href="../samples/flex_ajax">FLEX / AJAX SAMPLES</a><br>
+		</div>
+		<img border="0" src="../images/line06.gif" width="848" height="3">
+		
+		
+		
+		
+		
+		<table border="0" width="848" cellspacing="0" cellpadding="15">
+	<tr>
+		<td valign="top" width="568" class="copy"><h4>Libraries</h4>
+          There are 4 libraries that you need to run the samples.
         <ol>
-          <li><a href="http://www.amfphp.org/">AMFPHP</a> - Download this and install it in the <span class="code">amfphp/</span> directory. Should be included with the .zip file. </li>
+          <li><a href="http://www.amfphp.org/">AMFPHP</a> - Download this and install it in the <span class="code">amfphp/</span> directory. It is included with the .zip file, but not included with the code in the SVN repository. </li>
           <li>Flex / Ajax Bridge - This is installed for you.</li>
-          <li><a href="http://labs.adobe.com/technologies/spry/">Adobe Spry Framework</a> - Download this and install to the<span class="code"> spry/</span> directory. Should be included with the .zip file.</li>
-        </ol>
-      </li>
-    </ol>
-  </div>
-</div>
-<!--end content -->
-<div id="navBar">
-  <h3>Related Links</h3>
-  </div>
-</div>
-<!--end navBar div -->
-<div id="siteInfo"><!--Creative Commons License--><a rel="license" href="http://creativecommons.org/licenses/by/2.5/"><img alt="Creative Commons License" border="0" src="http://creativecommons.org/images/public/somerights20.png"/></a><br/>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5  License</a>.<!--/Creative Commons License--><!-- <rdf:RDF xmlns="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          <li><a href="http://labs.adobe.com/technologies/spry/">Adobe Spry Framework</a> - Download this and install to the <span class="code">spry/</span> directory. It is included with the .zip file, but not included with the code in the SVN repository. </li>
+          <li><a href="http://themidnightcoders.com/weborb/php">WebORB for PHP</a> from the Midnight Coders. This is not included, and should be downloaded and installed <a href="http://themidnightcoders.com/weborb/php/gettingstarted.htm">as per their instructions.</a> </li>
+        </ol></td>
+		
+		
+		
+		<td valign="top" width="1" height="100%"><img border="0" src="../images/divi01.gif" width="1" height="100%"></td>
+		
+		
+		
+		<td valign="top" width="220" class="copy"><span class="header01">Related Links</span><br>
+		� <a href="http://www.adobe.com/devnet/flex/">Adobe Flex PHP Developer Center</a><br>
+		� <a href="http://www.adobe.com/go/flex_trial">Try Flex Builder</a><br>
+		� <a href="http://www.adobe.com/go/flex_trial">Download Free Flex SDK</a><br>
+		� <a href="http://labs.adobe.com/technologies/spry/">Adobe Spry Ajax Framework</a></td>
+	</tr>
+</table>
+
+		</td>
+		<td valign="top" bgcolor="#CCCCCC" width="1"><img border="0" src="../images/spacer.gif" width="1" height="100%"></td>
+	</tr>
+	<tr>
+		<td valign="top" colspan="3" width="850">
+		<img border="0" src="../images/ftr01.gif" width="850" height="20"><br>
+		<img border="0" src="../images/ftr02.gif" width="850" height="24">
+		<p class="copyright"><!--Creative Commons License--><a rel="license" href="http://creativecommons.org/licenses/by/2.5/"><img alt="Creative Commons License" border="0" src="http://creativecommons.org/images/public/somerights20.png"/></a><br/>
+		  The webpages are  licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5  License</a>.<!--/Creative Commons License--><!-- <rdf:RDF xmlns="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 	<Work rdf:about="">
 		<license rdf:resource="http://creativecommons.org/licenses/by/2.5/" />
 	<dc:type rdf:resource="http://purl.org/dc/dcmitype/InteractiveResource" />
 	</Work>
-	<License rdf:about="http://creativecommons.org/licenses/by/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/><permits rdf:resource="http://web.resource.org/cc/Distribution"/><requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/><permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/></License></rdf:RDF> --></div>
-<br />
+	<License rdf:about="http://creativecommons.org/licenses/by/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/><permits rdf:resource="http://web.resource.org/cc/Distribution"/><requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/><permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/></License></rdf:RDF> --> 
+		  <br />
+		  This code in the SDK is made available in an <a href="../LICENSE.TXT">open source license</a>. The code under the <span class="code">libraries/</span> directory maintains its original license. 
+		</td>
+	</tr>
+</table>
+
+	</div>
+
 </body>
+
 </html>
