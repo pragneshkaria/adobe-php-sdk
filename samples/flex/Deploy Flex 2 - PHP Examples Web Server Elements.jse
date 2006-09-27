@@ -81,7 +81,7 @@ var simple_weborb_php=Boolean(true);
 // ----- Change the vars 'workspace' (source) and 'web_server_root' (destination)
 //       to match your development environment:
 
-var workspace = "C:\\workspace\\adobe-php-sdk.googlecode.com\\";
+var workspace = "C:\\workspace\\adobe-php-sdk\\";
 
 // Apache 2 Web server root:
 var web_server_root = "C:\\Apache2\\htdocs\\";
