@@ -12,7 +12,7 @@
 
 <table border="0" width="850" cellspacing="0" cellpadding="0">
 	<tr>
-		<td valign="top" colspan="3" width="850" align="center">
+	  <td valign="top" colspan="3" width="850" align="center">
 		<img border="0" src="../images/hdr01.gif" width="850" height="42"><br>
 		<a href="../index.html">
 		<img border="0" src="../images/hdr02.gif" width="249" height="110"></a><img border="0" src="../images/hdr03.gif" width="353" height="110"><img border="0" src="../images/hdr03.jpg" width="189" height="110"><img border="0" src="../images/hdr04.gif" width="59" height="110"></td>
@@ -20,10 +20,6 @@
 	<tr>
 		<td valign="top" bgcolor="#CCCCCC" width="1"><img border="0" src="../images/spacer.gif" width="1" height="100%"></td>
 		<td valign="top" width="848" bgcolor="#FFFFFF" align="center">
-		<div id="Nav">
-		<img border="0" src="../images/hdr05.gif" width="848" height="23"><br>
-		<a href="../samples">SAMPLES MAIN</a>&nbsp; |&nbsp; <a href="flex">FLEX SAMPLES</a>&nbsp; |&nbsp; <a href="ajax">AJAX SAMPLES</a>&nbsp; |&nbsp; <a href="flex_ajax">FLEX / AJAX SAMPLES</a><br>
-		</div>
 		<img border="0" src="../images/line06.gif" width="848" height="3">
 		
 		
@@ -32,37 +28,44 @@
 		
 		<table border="0" width="848" cellspacing="0" cellpadding="15">
 	<tr>
-		<td valign="top" width="568" class="copy"><h3>Getting Started</h3>
-    <ol>
-      <li>There are three directories of samples in this directory:
-        <ol>
-          <li>Ajax Samples - These samples make use of Adobe Ajax technology (Spry framework) and PHP.
-            <ol>
-              <li>Check out <a href="http://labs.adobe.com/technologies/spry/demos/">http://labs.adobe.com/technologies/spry/demos/</a> for great demos using the Spry framework. </li><br>
-            </ol>
-          </li>
-          <li>Flex Samples - These samples make use of Adobe Flex technology and PHP.</li>
-         <p>Note: For some samples you must create a flextest database first. Use this <a href="flex/simple_amfphp/flextest.sql">flextest.sql</a> file to create the database and tables. </p>	
-            <ol>
-              <li><span class="code"><a href="flex/simple_flex_xmlphp/" class="code">simple_flex_xmlphp</a></span> - Beginner - This sample shows the use of Flex to read in XML created by a PHP script. There is no database required for this sample.</li>
-                      <br> 
-              <li><a href="flex/simple_flex_php/" class="code">simple_flex_php</a> - Beginner - This sample shows printing out records from a MySQL database in XML format, and using a Flex form to populate that database. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
+		<td valign="top" width="568" class="copy"><h3>PHP RIA SDK Samples </h3>
+          <ol>
+      <li>Flex Samples - These samples make use of Adobe Flex technology and PHP.<br>
+        <br>
+Note: For some samples you must create a flextest database first. Use this <a href="flextest.sql">flextest.sql</a> file to create the database, tables and users before beggining. <br>
+<br>
+<ol>
+	        <li><a href="flex/mysql_flex/mysql_flex.html">mysql_flex</a> This sample shows the use of Flex to browse your MySQL databases. You need to set the configuration in the MySQL.php file, located in the <span class="code">libraries/weborb/Services/</span> directory before running this.<br> 
+	          <br>
+</li>
+	        <li><a href="flex/simple_amfphp/simple_flex_xmlphp.html">simple_amfphp</a> Same example as simple_flex_php, but using AMFPHP to transfer data back from MySQL, rather than printing out XML. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
                 <strong><br>
-                Note: You must create the flextest database first. </strong>Use this <a href="flex/simple_amfphp/flextest.sql">flextest.sql</a> file to create the database and tables. </li>
-                      <br> 
-              <li><span class="code"><a href="flex/simple_amfphp/">simple_amfphp</a></span> - Intermediate - Same example as simple_flex_php, but using AMFPHP to transfer data back from MySQL, rather than printing out XML. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
+                  Note: You must create the flextest database first. </strong>Use this <a href="flex/simple_amfphp/flextest.sql">flextest.sql</a> file to create the database and tables. <br>
+	              <br>
+	        </li>
+	        <li><a href="flex/simple_flex_php/simple_flex_php.html">simple_flex_php</a> This sample shows printing out records from a MySQL database in XML format, and using a Flex form to populate that database. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
                 <strong><br>
-                Note: You must create the flextest database first. </strong>Use this <a href="flex/simple_amfphp/flextest.sql">flextest.sql</a> file to create the database and tables. </li>
-                      <br> 
-            </ol>
-          <li>Flex / Ajax Samples - These samples make use of both Adobe Ajax technology (Spry framework) and Adobe Flex, with PHP on the backend.
-            <br><br><ol>
-              <li><span class="code"><a href="flex_ajax/feedburner/index.html">feedburner</a></span><a href="flex_ajax/feedburner/index.html"></a> - This sample shows retreiving data from Feedburner via Ajax, then using that data to populate a graph made with Adobe Flex. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>. </li>
-            </ol>
-          </li>
-        </ol>
-      </li>
-	</ol></td>
+                  Note: You must create the flextest database first. </strong>Use this <a href="flex/simple_amfphp/flextest.sql">flextest.sql</a> file to create the database, tables and users.<br>
+                  <br>
+	        </li>
+	        <li><a href="flex/simple_flex_xmlphp/">simple_flex_xmlphp</a></span> This sample shows the use of Flex to read in XML created by a PHP script. There is no database required for this sample.</li>
+	        <br> 
+	        <li><a href="flex/simple_weborb_php/simple_weborb_php.html">simple_weborb_php</a>  This sample shows how to use the Weborb library to transfer data to and from a Flex front end from PHP.  Weborb for PHP is recommended over AMFPHP, as it uses the newer AMF3 protocol. <br>
+	          <br> 
+	        </li>
+	        </ol>
+	      <li>Flex / Ajax Samples - These samples make use of both Adobe Ajax technology (Spry framework) and Adobe Flex, with PHP on the backend.
+	        <br>
+	        <br>
+	        <ol>
+	          <li><a href="flex_ajax/flex_ajax_bridge/index.html">Flex / Ajax bridge</a> - Simple - Use the Flex / Ajax bridge to build applications like the feedburner sample that can talk from Ajax to Flex and vice versa. Check out the Flex / Ajax bridge sample to see its power in action. <br>
+	            <br>
+	          </li>
+	          <li><a href="flex_ajax/feedburner/index.html">feedburner</a> - Intermedia - This sample shows retreiving data from Feedburner via Ajax, then using that data to populate a graph made with Adobe Flex. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>. </li>
+	          </ol>
+	        </li>
+	      </ol>
+      </td>
 		
 		
 		
@@ -70,11 +73,12 @@
 		
 		
 		
-		<td valign="top" width="220" class="copy"><span class="header01">Related Links</span><br>
-		� <a href="http://www.adobe.com/devnet/flex/">Adobe Flex PHP Developer Center</a><br>
-		� <a href="http://www.adobe.com/go/flex_trial">Try Flex Builder</a><br>
-		� <a href="http://www.adobe.com/go/flex_trial">Download Free Flex SDK</a><br>
-		� <a href="http://labs.adobe.com/technologies/spry/">Adobe Spry Ajax Framework</a></td>
+		<td valign="top" width="220" class="copy"><span class="header01">Related Links</span>
+		<ul>
+			<li><a href="http://www.adobe.com/devnet/flex/">Adobe Flex PHP Developer Center</a></li>
+			<li><a href="http://www.adobe.com/go/flex_trial">Try Flex Builder</a></li>
+			<li><a href="http://www.adobe.com/go/flex_trial">Download Free Flex SDK</a></li>
+			<li><a href="http://labs.adobe.com/technologies/spry/">Adobe Spry Ajax Framework</a></li></ul></td>
 	</tr>
 </table>
 
