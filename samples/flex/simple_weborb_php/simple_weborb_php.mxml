@@ -35,7 +35,7 @@
 			var getUsersArray:Array = event.result as Array;
 			dataProvider = getUsersArray;
 		}
-
+ 
 		public function submitUser():void {
 			var newUser:Array = new Array();
 			// Don't post empty user records to the flextest database
