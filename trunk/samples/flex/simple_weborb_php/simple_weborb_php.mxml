@@ -15,10 +15,9 @@
 		private var remoteObject:RemoteObject;
 
 		public function initApplication():void {
-			btnDelete.addEventListener(MouseEvent.CLICK, deleteUser);
-			btnDeleteException.addEventListener(MouseEvent.CLICK, deleteUserException);
 			remoteObject = new RemoteObject();
-			remoteObject.destination = "SimpleWebOrbPHPDestination";
+			remoteObject.destination = "GenericDestination";
+			remoteObject.source = "dbio_example";
 			remoteObject.getUsers.addEventListener("result", getUsersResult); 
 			remoteObject.addEventListener("fault", onFault);
 			getUsers();
