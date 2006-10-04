@@ -1,0 +1,28 @@
+* To install the SDK, simply extract the .zip file to your webserver. It should extract 
+to a directory php_ria_sdk_by_adobe.
+
+* You'll need to create a new database called flextest if you'd like to use some of the
+samples.  Create it using the following SQL commands:
+
+CREATE DATABASE flextest;
+USE flextest;
+
+CREATE TABLE `users` (
+  `userid` int(10) unsigned NOT NULL auto_increment,
+  `username` varchar(255) collate latin1_general_ci NOT NULL default '',
+  `emailaddress` varchar(255) collate latin1_general_ci NOT NULL default '',
+  PRIMARY KEY  (`userid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+on flextest.* to flext@localhost identified by 'p@ssword';
+
+* In libraries/weborb/Services/MySQL.php
+change the following lines to match your setup:
+
+private $server = "localhost";
+private $username = "root";
+private $password = "";
+
+Now open up php_ria_sdk_by_adobe/index.html in your web browser.
