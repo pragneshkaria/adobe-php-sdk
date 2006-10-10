@@ -1,78 +1,85 @@
 <?
-class MySQL
-{
+# Updated version of "WebORB for PHP "MySQL.php" class supporting PHP 5 objects 
+# and 'mysqli' (improved) database I/O. 
+# -- By Pete Mackie, Seaquest Software, October 7, 2006 --
+
+Define('DATABASE_SERVER', 'localhost');
+Define('DATABASE_USERNAME', 'root');
+Define('DATABASE_PASSWORD', '');
+
+// MySQL database I/O PHP class example as a WebORB for PHP service
+class MySQL {
 	private $err_prefix="WebORB Remoting Error: 'MySQL' class database ";
-	private $server = "localhost";
-	private $username = "root";
-	private $password = "";
-	
-	function MySQL()
-	{	
+	private $mysqli;
+
+	public function __construct() {
+		error_reporting(0);	# Silence error messages and return errors to WebORB
+		# Connect to MySQL database....
+		$this->mysqli = new mysqli(DATABASE_SERVER, DATABASE_USERNAME, DATABASE_PASSWORD);         
+		if (mysqli_connect_errno()) {
+			$msg=$this->err_prefix."could not connect: ".mysqli_connect_error();
+   		throw new Exception($msg);
+   	}
 	}
 
-	function connect( )
-	{
-		$this->Connection = mysql_pconnect( $this->server, $this->username, $this->password );
-		
-		if (!$this->Connection) {
-			$msg=$this->err_prefix."could not connect: ".mysql_error();
-   			throw new Exception($msg);
+	public function getDatabases() {
+		# Return an array of all the MySQL databases
+		if (!$result=$this->mysqli->query("SHOW DATABASES")) {
+			$msg=$this->err_prefix."SHOW DATABASES query error: ".$this->mysqli->error;
+			$this->mysqli->close();
+   		throw new Exception($msg);
 		}
+		# Following is Pete's suggested return:
+		while ($row = $result->fetch_array(MYSQLI_NUM)) {
+		 	$db_array[] = $row[0];
+		}
+		# Free result set
+		$result->close();
+		return($db_array);
 	}
 	
-	function getDatabases( $Username, $Password, $Server ){
-		if( !$this->Connection )
-			$this->connect( );
-		
-		$db_list = mysql_list_dbs($this->Connection);
-
-		if( !$db_list ) {
-			$msg=$this->err_prefix."could not get databases: ".mysql_error();
-   			throw new Exception($msg);
-		} else {
-			while ($row = mysql_fetch_object($db_list)) {
-    			$Return[] = $row;
-			}
-			return $Return;
+	function getTables($databaseName) {
+		# Return an array of all the tables for '$databaseName)'
+		$sql = 'SHOW TABLES FROM '.$databaseName;
+		if (!$result=$this->mysqli->query($sql)) {
+			$msg=$this->err_prefix."SHOW TABLES query error: ".$this->mysqli->error;
+			$this->mysqli->close();
+   		throw new Exception($msg);
 		}
+		while ($row = $result->fetch_array(MYSQLI_NUM)) {
+			$table_array[] = $row[0];
+		}
+		# Free result set
+		$result->close();
+		return($table_array);
 	}
 	
-	function getTables( $DatabaseName )
-	{
-		if( !$this->Connection )
-		 	$this->connect();
-		 	
-		$sql = "SHOW TABLES FROM $DatabaseName";
-		$Result = mysql_query( $sql );
-		if( !$Result ) {
-			$msg=$this->err_prefix."could not get tables: ".mysql_error();
-   			throw new Exception($msg);
-		} else {
-			return( $Result );
+	function getDataFromTable($tableName, $databaseName) {
+		# Get the '$tableName' data from the '$databaseName' MySQL database
+		$this->mysqli->select_db($databaseName);
+		$sql = 'SELECT * FROM '.$tableName;
+		if (!$result=$this->mysqli->query($sql)) {
+			$msg=$this->err_prefix."SELECT * FROM query error: ".$this->mysqli->error;
+			$this->mysqli->close();
+   		throw new Exception($msg);
 		}
-	}
-	
-	function getDataFromTable( $TableName, $DatabaseName )
-	{
-		if( !$this->Connection )
-		 	$this->connect();
-		 	
-		$db_selected = mysql_select_db($DatabaseName);
-		$sql = "SELECT * FROM ". $TableName;
-		$Result = mysql_query( $sql );
-		
-		if( !$Result ) {
-			$msg=$this->err_prefix."could not get data from table: ".mysql_error();
-   			throw new Exception($msg);
-		} else {
-			return( $Result );
+		while ($row = $result->fetch_assoc()) {
+				$data_array[] = $row;
 		}
+		# Free result set
+		$result->close();
+		return($data_array);
 	}
 }
-/*
-$TestObject = new MySQL();
-print_r( $TestObject->getDatabases() );
-print_r( $TestObject->getTables( "drupal47"));
-print_r( $TestObject->getDataFromTable( "users", "drupal47"));
-*/
+
+
+$databaseName='businesses';
+$tableName='categories';
+
+$testObject = new MySQL();
+echo "getDatabases() call returns: ";  print_r($testObject->getDatabases());
+echo "\ngetTables('$databaseName') call returns: "; print_r( $testObject->getTables($databaseName));
+echo "\n\ngetDataFromTable('$tableName', '$databaseName') call returns: "; print_r($testObject->getDataFromTable($tableName, $databaseName));
+echo "\n";
+
 ?>
