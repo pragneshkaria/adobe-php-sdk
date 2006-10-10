@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Modified By Renaun Erickson <http://renaun.com>
+Date: 2006.03.27
+    
+Copyright 2005 iteration::two Ltd
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+@ignore
+-->
+<!--
+	@version $Revision: 1.9 $
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" 
+	xmlns:business="com.renaun.samples.login.business.*" 
+	xmlns:control="com.renaun.samples.login.control.*" 
+	xmlns:view="com.renaun.samples.login.view.*"
+	pageTitle="Cairngorm Login Sample Application"
+	paddingTop="5" paddingBottom="5" 
+	paddingLeft="5" paddingRight="5" 
+	horizontalAlign="center"  viewSourceURL="srcview/index.html">
+
+	<mx:Script>
+	<![CDATA[
+		
+		import mx.core.Container;
+		import com.renaun.samples.login.model.ModelLocator;	
+		import com.renaun.samples.login.vo.LoginVO;
+		import com.renaun.samples.login.vo.BookVO;	
+		
+		public function getView( workflowState : Number ) : Container
+ 		{  
+			if( model.workflowState == ModelLocator.VIEWING_LOGGED_IN_SCREEN )
+			{
+				return loggedIn;
+			}
+			else
+			{
+				return login;	
+			}
+		}	
+		
+		//-------------------------------------------------------------------------
+			
+		[Bindable]
+		public var model : ModelLocator = ModelLocator.getInstance();
+
+	
+		
+		private function viewDetails():void
+		{
+			lblBook.text = BookVO( dgBooks.selectedItem ).name;
+		}
+	
+	]]>
+	</mx:Script>
+	
+<!-- ========================================================================== -->
+	
+	<!-- the ServiceLocator where we specify the remote services -->
+	<business:Services id="loginServices" />
+	
+	<!-- the FrontController, containing Commands specific to this appliation -->
+	<control:LoginControl id="controller" />
+	
+<!-- ========================================================================== -->
+
+   <mx:ViewStack 
+   	id="appView" width="600" height="100%"
+   	selectedChild="{ getView( model.workflowState ) }">
+
+        <view:Login id="login" horizontalAlign="center" width="600" height="250" />
+
+        <mx:VBox id="loggedIn" horizontalAlign="center">
+            <mx:Label text="{ 'Logged in as ' + LoginVO( model.loginVO ).username + ' at ' + model.loginDate }" />
+            <mx:DataGrid id="dgBooks" change="viewDetails()"
+            	dataProvider="{ model.books }" width="500"/>
+            <mx:Label id="lblBook" text="" />
+        </mx:VBox>
+
+    </mx:ViewStack>
+
+</mx:Application>

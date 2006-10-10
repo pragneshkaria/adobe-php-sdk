@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright 2006 Renaun Erickson (http://renaun.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+@ignore
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:renaun="com.renaun.rpc.*"
+	layout="vertical"
+	creationComplete="doLogin()">
+
+	<renaun:RemoteObjectAMF0 
+		endpoint="http://localhost/amfphp/gateway.php"
+		id="roLoginService"
+		source="com.renaun.samples.login.services.Login"
+		showBusyCursor="true"
+		result="resultHandler( event )"
+		fault="faultHandler( event )">
+	</renaun:RemoteObjectAMF0>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.*;
+			import mx.utils.ArrayUtil;
+			import com.renaun.samples.login.vo.BookVO;
+			import mx.controls.Alert;
+		
+		private function doLogin():void 
+		{
+			roLoginService.checkLogin( "test", "test" );	
+			
+		}
+
+		[Bindable]
+		[ArrayElementType("com.renaun.samples.login.vo.BookVO")]
+		private var books:ArrayCollection;
+
+		private function resultHandler( event:ResultEvent ):void
+		{
+			books = new ArrayCollection( ArrayUtil.toArray( event.result ) );
+		}
+
+		public function faultHandler( event:FaultEvent ):void
+		{
+			// Handle faults here
+			Alert.show( "Fault: " + event.fault + " Msg: " + event.message );
+		}	
+		
+		private function viewDetails():void
+		{
+			lblBook.text = BookVO( dgBooks.selectedItem ).name;
+		}
+
+		]]>
+	</mx:Script>
+
+	<mx:Label id="lblBook" text="" />
+
+	<mx:DataGrid id="dgBooks" dataProvider="{ books }" width="500"
+		change="viewDetails()" />
+
+	<mx:Button label="Create Fault" click="roLoginService.noMethod()" />
+
+</mx:Application>
