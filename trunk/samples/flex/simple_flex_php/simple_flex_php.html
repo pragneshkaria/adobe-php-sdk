@@ -32,6 +32,7 @@ var hasProductInstall = DetectFlashVer(6, 0, 65);
 // Version check based upon the values defined in globals
 var hasRequestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
 
+
 // Check to see if a player with Flash Product Install is available and the version does not meet the requirements for playback
 if ( hasProductInstall && !hasRequestedVersion ) {
 	// MMdoctitle is the stored document.title value used by the installation process to close the window that started the process
@@ -69,7 +70,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 			"quality", "high",
 			"bgcolor", "#869ca7",
 			"name", "simple_flex_php",
-			"flashvars",'historyUrl=history.htm%3F&lconid=' + lc_id + '&hostname='+ document.location.protocol + '//' + document.location.host,
+			"flashvars",'historyUrl=history.htm%3F&lconid=' + lc_id + '',
 			"allowScriptAccess","sameDomain",
 			"type", "application/x-shockwave-flash",
 			"pluginspage", "http://www.adobe.com/go/getflashplayer"

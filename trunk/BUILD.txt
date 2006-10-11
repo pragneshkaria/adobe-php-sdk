@@ -1,0 +1,10 @@
+If you want to build the SDK, do the following.
+
+1.  Export the project from SVN. From Eclipse, go to SVN Repository view, 
+    right click on "trunk", select Export...
+2.  Export it to c:/temp/php_ria_sdk_by_adobe/
+3.  Copy the /libraries directory over, or download the libraries that you need:
+	1.  AMFPHP http://www.amfphp.org/ -> This goes in the libraries/amfphp/ directory.
+		(ie. gateway.php is in libraries/amfphp/)
+	2.  WebORB http://www.themidnightcoders.org -> This goes in the libraries/weborb/Weborb/ directory. 
+	 	(ie. ORBHttpHandler.php is in libraries/weborb/Weborb/)
