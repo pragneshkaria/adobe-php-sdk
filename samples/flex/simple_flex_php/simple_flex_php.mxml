@@ -2,21 +2,13 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onInit()" xmlns="*" layout="absolute">
    <mx:Script>
    	<![CDATA[
-   		[Bindable]
-   		public var hostname:String = "http://localhost";
-   		
    		public function onInit():void
    		{
-   			var protocol:String = ExternalInterface.call("window.location.protocol.toString");
-   			 	  			
-   			if( protocol != "file:" )
- 	  			hostname = protocol + "//"+ ExternalInterface.call("window.location.hostname.toString");
- 	  			
- 	  		userRequest.send();
+   			userRequest.send();
   		}
    	]]>
    </mx:Script>
-   <mx:HTTPService id="userRequest" url="{hostname}/adobe_php_sdk/samples/flex/simple_flex_php/request.php" useProxy="false" method="POST">
+   <mx:HTTPService id="userRequest" url="request.php" useProxy="false" method="POST">
       <mx:request xmlns="">
          <username>{username.text}</username><emailaddress>{emailaddress.text}</emailaddress>
       </mx:request>
@@ -24,7 +16,7 @@
    <mx:Form x="22" y="10" width="356">
       <mx:HBox>
          <mx:Label text="Username"/>
-         <mx:TextInput id="username" text="{hostname}"/>
+         <mx:TextInput id="username"/>
       </mx:HBox>
       <mx:HBox>
          <mx:Label text="Email Address"/>
