@@ -2,9 +2,20 @@ If you want to build the SDK, do the following.
 
 1.  Export the project from SVN. From Eclipse, go to SVN Repository view, 
     right click on "trunk", select Export...
-2.  Export it to c:/temp/php_ria_sdk_by_adobe/
-3.  Copy the /libraries directory over, or download the libraries that you need:
+
+2.  Export it to c:/temp/
+
+3.  Rename trunk to php_ria_sdk_by_adobe
+
+4.  Copy the /libraries directory over, or download the libraries that you need:
 	1.  AMFPHP http://www.amfphp.org/ -> This goes in the libraries/amfphp/ directory.
 		(ie. gateway.php is in libraries/amfphp/)
 	2.  WebORB http://www.themidnightcoders.org -> This goes in the libraries/weborb/Weborb/ directory. 
 	 	(ie. ORBHttpHandler.php is in libraries/weborb/Weborb/)
+		Note that you need to make a change to the Weborb/WEB-INF/flex/services-config.xml file to point to a weborb.php  file, as per instructions at http://www.themidnightcoders.com/forum/default.aspx?g=posts&t=52 
+
+4.  Zip the php_ria_sdk_by_adobe directory up into a .zip file with the name php_ria_sdk_by_adobe_YYMMDD.zip
+
+5.  Profit.
+
+6.  Upload to a test server to make sure things work properly.
