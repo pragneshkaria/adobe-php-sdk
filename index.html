@@ -30,12 +30,12 @@
 	<tr>
 		<td valign="top" width="568" class="copy"><p><span class="header01">Welcome to the PHP RIA SDK by Adobe </span><br>
 		  The PHP RIA SDK by Adobe provides PHP developers with links and 
-		  content to help you get started with Adobe Flex, Adobe's Spry Framework 
+		  content to help you get started with Adobe Flex, Adobe Ajax Spry Framework 
 		  and PHP.
 		  </p>
 		  <p><span class="header01">Getting Started </span></p>
 		  <ol>
-		    <li>Modify libraries/weborb/Services/MySQL.php with your database access information. <br>
+		    <li>Modify <span class="code">libraries/weborb/Services/MySQL.php</span> with your database access information. <br>
 		      <br>
 		    </li>
 		    <li>Create a new MySQL database called flextest.<br>
@@ -53,30 +53,40 @@
 		      on flextest.* to flext@localhost identified by 'p@ssword';<br>
 		      <br>
 		      </li>
-		    <li><a href="samples/index.html">Browse the samples</a>. Once you've seen what you can do, you'll want to read Getting Started with Adobe Flex and start creating your own Flex based applications. </li>
+		    <li><a href="samples/index.html">Browse the samples</a>. Once you've seen what you can do, you'll want to check out the links in <a href="#gettingstarted">Getting Started with Adobe Flex</a> and start creating your own Flex based applications. </li>
 		    </ol>
-		  <p><span class="header01">Getting Started with Adobe Flex </span>
+		  <p><span class="header01"><a name="gettingstarted"></a>Getting Started with Adobe Flex </span>
 		  <ol>
-			<li><a href="http://www.adobe.com/go/flex_trial">Download the free Adobe Flex SDK</a> or the <a href="http://www.adobe.com/go/flex_trial">free trial of Adobe Flex Builder</a>.</li> 
+			<li><a href="http://www.adobe.com/go/flex_trial">Download the free trial of Adobe Flex Builder</a>. If you prefer to code by hand, understand ActionScript and MXML, and want to compile using a command line interface, you can <a href="http://www.adobe.com/go/flex_trial">download the free Flex SDK</a>, but its not recommended if you're just getting started. </li> 
 			<br />            
-			<li>Get PHP from <a href="http://www.php.net/">PHP.net</a>.</li><br />
-			<li>Learn the basics:
-			<ul>
-			  <li><a href="http://www.adobe.com/devnet/flex/articles/flex2_php.html">Integrating Flex and PHP</a></li>
-			  <li><a href="http://www.adobe.com/devnet/flex/articles/flex2_amfphp.html">Using Flex and AMFPHP</a></li>
-			</ul> 
-			<br />                        
-			<li>The following projects are included in this .zip file, and do not need 
+			<li>Get PHP from <a href="http://www.php.net/">PHP.net</a>. You probably already have this. You'll also need <a href="http://www.mysql.org/">MySQL</a> for a few of the examples. Again, you probably already have this. </li><br />
+			<li>Learn the basics of Adobe Flex.  Read the <a href="http://www.adobe.com/devnet/flex/?tab:quickstart=1">Flex Quick Starts</a> on the <a href="http://www.adobe.com/devnet/flex/">Adobe Flex Developer Center</a>. Don't worry, its easy. Honest. </li><br>             
+			<li>Learn the basics of integrating Flex with PHP.  You'll see there are many ways to connect Flex and PHP together.
+			      <ul>
+			        <li>Using XML: <a href="http://www.adobe.com/devnet/flex/articles/flex2_php.html">Integrating Flex and PHP.</a><br>
+			        Use PHP to print out XML, and then read that XML using a Flex front end.<br> 
+			          <br>
+		            </li>
+			        <li>Using WebORB: <a href="http://www.themidnightcoders.com/weborb/php/gettingstarted.htm">Getting started with Flex and WebORB.</a><br>
+			        WebORB	allows	you	to pass data, including arrays and objects, directly from Flex to PHP, and vice versa using the AMF0 and AMF3 protocols. <br>
+			          <br>
+</li>
+			        <li>Using AMFPHP: <a href="http://www.adobe.com/devnet/flex/articles/flex2_amfphp.html">Using Flex and AMFPHP</a><br>
+					  AMFPHP allows you to pass data, including arrays but not objects, directly from Flex to PHP, and vice versa, using the older AMF0 protocol. <br>
+					  <br />                        
+			</li>
+				  </ul>
+		        <li>The following projects are useful for connecting Flex and PHP. They are included in this .zip file, and do not need 
 			  to be downloaded:<br>
 			  <ol>
 			    <li><a href="http://www.amfphp.org">AMFPHP (1.2.5)</a> - This is installed in the <span class="code">libraries/amfphp/</span> directory. The service browser is not included in this library. If you need that feature, please download AMFPHP and install it into <span class="code">libraries/amfphp/</span>. </li>
-	    <li><a href="http://labs.adobe.com/technologies/spry/">Adobe Spry Ajax Framework (1.3)</a> - This is installed in the <span class="code">libraries/spry/</span> directory. <br />
+	    <li><a href="http://labs.adobe.com/technologies/spry/">Adobe Spry Ajax Framework (1.3)</a> - This is installed in the <span class="code">libraries/spry/</span> directory. This Ajax framework can be used to integrate Ajax into your PHP website easily. <br />
 	      </li>
 	    <li><a href="http://labs.adobe.com/wiki/index.php/Flex_Framework:FABridge">Flex / Ajax bridge</a> - This is installed in the <span class="code">libraries/fabridge/</span> directory.</li>
-		    <li><a href="http://themidnightcoders.com/weborb/php/index.htm">WebORB for PHP</a> - This is installed in the <span class="code">libraries/weborb/</span> directory. Please note that we've made one change to the default download. As <a href="http://www.themidnightcoders.com/forum/default.aspx?g=posts&t=52">per instructions on this page</a>, we've modified the Weborb/WEB-INF/flex/services-config.xml file to point to a weborb.php file. If you want to use this library, you'll need to create a weborb.php file in the root of your Flex project, similar to those in the simple_weborb_php and mysql_flex folders. </li>
+		    <li><a href="http://themidnightcoders.com/weborb/php/index.htm">WebORB for PHP (1.3) </a> - This is installed in the <span class="code">libraries/weborb/</span> directory. <em><strong>Please note that we've made one change to the default download.</strong></em> As <a href="http://www.themidnightcoders.com/forum/default.aspx?g=posts&t=52">per instructions on this page</a>, we've modified the Weborb/WEB-INF/flex/services-config.xml file to point to a weborb.php file. If you want to use this library, you'll need to create a weborb.php file in the root of your Flex project, similar to those in the <span class="code">simple_weborb_php/</span> and <span class="code">mysql_flex/</span> folders. </li>
 			  </ol>
 			  <br />
-			  <li>Note that if you downloaded this SDK via the Google Code project, the above projects are not included, and you'll need to download each of them into the directories. If you downloaded this SDK as a .zip file, don't worry, you've got them. </li>
+			  <li>Note that <u>if you downloaded this SDK via SVN from the Google Code project</u>, the above projects are <u>not included</u>, and you'll need to download each of them into the directories. If you downloaded this SDK as a .zip file, don't worry, you've got them. </li>
 			</ol>
 			<p>
 		
@@ -95,10 +105,10 @@
 		<span class="header01">Learning More</span><br>
 		Want to learn how to integrate Flex or Ajax into your existing PHP 
 		applications?             
+			<p>Read the <a href="http://livedocs.macromedia.com/flex/2/langref/">Flex Documentation</a>.            
 			<p>Read more about integrating Flex and PHP in the <a href="http://www.adobe.com/devnet/flex/flex_php.html">Flex PHP Developer Center</a>.             
-			<p>Read more about integrating PHP and the Spry framework 
-			  on the <a href="http://labs.adobe.com/technologies/spry/">Adobe Labs website</a>.             
-			<p>Read the <a href="http://livedocs.macromedia.com/flex/2/langref/">Flex Documentation</a>.</td>
+			  <p>Read more about integrating PHP and the Spry framework 
+			  on the <a href="http://labs.adobe.com/technologies/spry/">Adobe Labs website</a>.			</td>
 		
 		
 		
@@ -107,9 +117,10 @@
 		
 		
 		<td valign="top" width="220" class="copy"><span class="header01">Related Links</span><ul>
+		<li><a href="http://www.adobe.com/go/flex_trial">Download Flex Builder</a></li>
 		<li><a href="http://www.adobe.com/devnet/flex/">Adobe Flex PHP Developer Center</a></li>
-		<li><a href="http://www.adobe.com/go/flex_trial">Try Flex Builder</a></li>
-		<li><a href="http://www.adobe.com/go/flex_trial">Download Free Flex SDK</a></li>
+		<li><a href="http://code.google.com/p/adobe-php-sdk/">Google Code Project</a></li>
+		<li><a href="http://groups.google.com/group/adobe_php_sdk">Flex / PHP Mailing List </a></li>
 		<li><a href="http://labs.adobe.com/technologies/spry/">Adobe Spry Ajax Framework</a></li>
 		<li><a href="http://blogs.adobe.com/mikepotter/">Mike Potter's Blog</a></li>
 		</ul></td>
