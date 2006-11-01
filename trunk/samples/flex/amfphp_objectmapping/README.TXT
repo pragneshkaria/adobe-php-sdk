@@ -11,13 +11,17 @@ HOW TO USE:
 
 Get latest AMFPHP located at http://amfphp.org
 
+Get latest RemoteObjectAMF0 code at http://renaun.com/blog/flex-components/remoteobjectamf0/
+
 Get latest Cairngorm 2 code at http://labs.adobe.com/wiki/index.php/Cairngorm
 
+Copy the services folder into your amfphp/services/ folder.
+
 Create a new Flex project and copy the files in the "flex" folder into the project.  Make sure to set the Project 
-to use the Cairngorm 2 swc as a library reference. 
+to use the Cairngorm 2 swc and RemoteObjectAMF0 swc as a library reference. 
 
 More information located at:
-http://renaun.com/blog/index.php?s=RemoteObjectAMF0&searchbutton=Go%21
+http://renaun.com/blog/flex-components/remoteobjectamf0/
 
 Copyright 2006 Renaun Erickson (http://renaun.com)
 
