@@ -1,4 +1,4 @@
-<?
+<?php
 # Updated version of "WebORB for PHP "MySQL.php" class supporting PHP 5 objects 
 # and 'mysqli' (improved) database I/O. 
 # -- By Pete Mackie, Seaquest Software, October 7, 2006 --
