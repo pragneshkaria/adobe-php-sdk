@@ -1,3 +1,10 @@
+* Please note that any projects that are included in the .zip file are licensed 
+under their own licenses.  Those projects include:
+
+AMFPHP - GPL
+WebORB for PHP - GPL
+Flex / Ajax Bridge - BSD
+
 Copyright (c) 2006, Adobe Systems Inc.
 All rights reserved.
 
