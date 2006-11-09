@@ -18,7 +18,7 @@ class dbio_example {
    		throw new Exception($msg);
    	}
 	}
-
+ 
 	public function getUsers() {
 		# Return a list of all the 'flextest' users
 		if (!$result=$this->mysqli->query("SELECT * from users")) {
