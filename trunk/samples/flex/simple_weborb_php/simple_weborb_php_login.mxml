@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="absolute" 
+	currentState="login" creationComplete="initApplication()">
+	<mx:Script>
+	<![CDATA[
+		import mx.charts.chartClasses.StackedSeries;
+		import mx.rpc.remoting.RemoteObject;
+		import mx.controls.Alert;
+		import mx.controls.Button;
+		import mx.rpc.events.ResultEvent
+		import mx.rpc.events.FaultEvent
+		import mx.utils.ArrayUtil;
+		import mx.effects.easing.Bounce;
+
+	[Bindable]
+		public var dataProvider:Array;
+	[Bindable]
+		public var userName:String='';
+	[Bindable]
+		public var password:String='';
+	[Bindable]
+		public var rememberPwd:Boolean;
+
+		public var loginSO:SharedObject=SharedObject.getLocal("login");
+		private var remoteObject:RemoteObject;
+
+		public function initApplication():void {
+			// -- WebORB for PHP 1.2 or newer RemoteObject init --
+   		remoteObject = new RemoteObject();
+   		remoteObject.destination = "GenericDestination";
+ 			// Your PHPClassName.PHP must be deployed in the /Services folder
+   		remoteObject.source = "adobe_php_sdk.simpleWebOrbPHP.dbio_example";
+   		remoteObject.getUsers.addEventListener("result", getUsersResult); 
+   		//remoteObject.updateUsers.addEventListener("result", updateUsersResult); 
+   		remoteObject.login.addEventListener("result", onResultLogin); 
+  		remoteObject.addEventListener("fault", onFault);	
+  		if (loginSO.data.rememberPwd==null) { // The "login" Flex 2 shared object does not exist
+						rememberPwd=false;
+  		} else {
+  			rememberPwd=loginSO.data.rememberPwd;
+  			userName=loginSO.data.userName;
+ 				password=loginSO.data.password;
+  		}
+		}
+
+		private function onFault(event:FaultEvent):void {
+			Alert.show(event.fault.faultString, 'Error');
+			if (currentState=="login") {
+				lblLogging.text = "";
+				userName = "";
+				password = "";
+			}
+		}
+
+		private function onResultLogin(event:ResultEvent):void {
+			if (rememberPwd==false) {
+				loginSO.clear();
+			} else {
+				// Save users login data in the "login" shared object for next login.
+				loginSO.data.rememberPwd=rememberPwd;
+  			loginSO.data.userName=userName;
+ 				loginSO.data.password=password;
+			}
+			// Valid Username and password found, display the browse canvis
+			currentState = 'browse';
+			getUsers();
+		}
+		
+		private function getUsers():void {
+			remoteObject.getUsers();
+		}
+
+		private function getUsersResult(event:ResultEvent):void {
+			dataProvider = ArrayUtil.toArray(event.result);
+		}
+
+		public function updateUser():void {
+			var userid:int=dgUserRequest.selectedItem.userid;
+			var username:String=selectedusername.text;
+			var emailaddress:String=selectedemailaddress.text;
+			// Only update flextest database records with a valid userid
+			if (userid==0)
+				return;
+			// Sorry, you cannot update to totally empty records
+			if (username=='' && emailaddress=='')
+				return;
+			remoteObject.updateUser(userid, username, emailaddress);
+			getUsers();
+		}
+		
+		public function submitUser():void {
+			var newUser:Array = new Array();
+			// Don't post empty user records to the flextest database
+			if (username.text=='' || emailaddress.text=='') 
+				return;
+			newUser.username=username.text;
+			newUser.emailaddress=emailaddress.text;
+			username.text='';
+			emailaddress.text='';
+			remoteObject.submitUser(newUser);
+ 			getUsers();
+		}
+
+		public function submitUserException():void {
+			var newUser:Array = new Array();
+			newUser.username='Foo Bogus';
+			newUser.emailaddress='foo@bogus-company.com';
+			remoteObject.submitUserException(newUser);
+ 		}
+
+		public function deleteUser():void {
+			var userid:int=dgUserRequest.selectedItem.userid;;
+			// Only delete flextest database records with a valid userid
+			if (userid==0)
+				return;
+			remoteObject.deleteUser(userid);
+			getUsers();
+		}
+
+		public function deleteUserException(userid:int):void {		
+			//Irrelevant userid value passed in from line #204, below
+			remoteObject.deleteUserException(userid);
+		}
+
+		public function setRememberPwd():void {
+			// Toggle the 'rememberPwd' boolean value
+			rememberPwd=rememberPwd ? false : true;
+		}
+	]]>
+	</mx:Script>
+	<mx:transitions>
+		<!--
+			The "*" indicates that the transition should be applied
+			to any changes in the view state. You can set either 
+			property to "" to refer to the base view state. 
+		-->
+		<mx:Transition fromState="*" toState="*">
+			<!-- Parallel effects execute in unison --> 
+			<mx:Parallel targets="{[loginPanel,browseCanvas]}">
+				<mx:Resize duration="1500" easingFunction="Bounce.easeOut"/>
+				<!-- 
+					Sequence effects execute in turn. The effects
+					in this sequence will only affect the confirm FormItem.
+				-->
+				<mx:Sequence target="{browseCanvas}">
+ 					<mx:Blur duration="200" blurYFrom="1.0" blurYTo="20.0" />            
+					<mx:Blur duration="200" blurYFrom="20.0" blurYTo="1" />            
+				</mx:Sequence>
+			</mx:Parallel>
+		</mx:Transition>
+	</mx:transitions>
+	<mx:states>
+		<mx:State name="login">
+			<mx:AddChild position="lastChild">
+				<mx:Panel id="loginPanel" layout="absolute" width="275" height="154" title="Please Log In:" x="80" y="36">
+					<mx:Script>
+						<![CDATA[
+						private function handleLoginEvent():void {
+							lblLogging.text = "logging in...";
+							userName=uname.text;
+							password=pwd.text;
+							remoteObject.login(uname.text, pwd.text);
+						}
+						]]>
+					</mx:Script>
+					<mx:Label x="10" y="12" text="Username"/>
+					<mx:Label x="10" y="42" text="Password"/>
+					<mx:TextInput x="74" y="10" id="uname" text="{userName}"/>
+					<mx:TextInput x="74" y="40" displayAsPassword="true" id="pwd" text="{password}"/>
+					<mx:Button id="loginButton" x="178" y="70" label="Login" click="handleLoginEvent()"/>
+					<mx:Label x="74" y="72" id="lblLogging"/>
+					<mx:CheckBox x="10" y="92" click="setRememberPwd()" id="rememberCB" label="Remember my login" selected="{rememberPwd}" color="blue"/>
+			</mx:Panel>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="browse">
+			<mx:AddChild position="lastChild">
+				<mx:Canvas id="browseCanvas" x="29" y="22" width="425" height="481">
+					<mx:Form x="22" y="10" width="356" height="138">
+						<mx:HBox>
+							<mx:Label text="Username"/>
+							<mx:TextInput id="username" width="159"/>
+						</mx:HBox>
+						<mx:HBox>
+							<mx:Label text="Email Address"/>
+							<mx:TextInput id="emailaddress"/>
+						</mx:HBox>
+						<mx:Button label="Submit" click="submitUser()"/>
+						<mx:Button label="Submit (With PHP Exception)" click="submitUserException()"/>
+					</mx:Form>
+					<mx:DataGrid id="dgUserRequest" x="22" y="146" dataProvider="{dataProvider}" width="356">
+						<mx:columns>
+							<mx:DataGridColumn headerText="User ID" dataField="userid" width="60" />
+							<mx:DataGridColumn headerText="User Name" dataField="username"/>
+							<mx:DataGridColumn headerText="Email Address" dataField="emailaddress"/>
+						</mx:columns>
+					</mx:DataGrid>
+					<mx:Label x="39" y="314" text="User Name"/>
+					<mx:TextInput x="113" y="312" id="selectedusername" editable="true" text="{dgUserRequest.selectedItem.username}"/>
+					<mx:Label x="22" y="344" text="Email Address"/>
+					<mx:TextInput x="113" y="342" id="selectedemailaddress" editable="true" text="{dgUserRequest.selectedItem.emailaddress}"/>
+					<mx:Button x="113" y="372" label="Update User" click="updateUser()" width="96"/>
+					<mx:Button x="113" y="398" label="Delete User" click="deleteUser()" width="96"/>
+					<mx:Button x="113" y="428" label="Delete User (With PHP Exception)" click="deleteUserException(100)" id="btnDeleteException"/>
+				</mx:Canvas>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+</mx:Application>

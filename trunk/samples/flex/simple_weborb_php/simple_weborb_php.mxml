@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="absolute" 
+	creationComplete="initApplication()">
+	<mx:Script>
+	<![CDATA[
+		import mx.rpc.remoting.RemoteObject;
+		import mx.controls.Alert;
+		import mx.controls.Button;
+		import mx.rpc.events.ResultEvent
+		import mx.rpc.events.FaultEvent
+		import mx.utils.ArrayUtil;
+
+		[Bindable]
+		public var dataProvider:Array;
+
+		private var remoteObject:RemoteObject;
+
+		public function initApplication():void {
+			// -- WebORB for PHP 1.2 or newer RemoteObject init --
+   		remoteObject = new RemoteObject();
+   		remoteObject.destination = "GenericDestination";
+  		// Your PHPClassName.PHP must be deployed in the /Services folder
+   		remoteObject.source = "adobe_php_sdk.simpleWebOrbPHP.dbio_example";
+   		remoteObject.getUsers.addEventListener("result", getUsersResult);
+  		remoteObject.addEventListener("fault", onFault);
+			getUsers();
+		}
+
+		public static function onFault(event:FaultEvent):void {
+			Alert.show(event.fault.faultString, 'Error');
+		}
+
+		private function getUsers():void {
+			remoteObject.getUsers();
+		}
+
+		private function getUsersResult(event:ResultEvent):void {
+			dataProvider = ArrayUtil.toArray(event.result);
+		}
+
+		public function updateUser():void {
+			var userid:int=dgUserRequest.selectedItem.userid;
+			var username:String=selectedusername.text;
+			var emailaddress:String=selectedemailaddress.text;
+			// Only update flextest database records with a valid userid
+			if (userid==0)
+				return;
+			// Sorry, you cannot update to totally empty records
+			if (username=='' && emailaddress=='')
+				return;
+			remoteObject.updateUser(userid, username, emailaddress);
+			getUsers();
+		}
+
+		public function submitUser():void {
+			var newUser:Array = new Array();
+			// Don't post empty user records to the flextest database
+			if (username.text=='' || emailaddress.text=='') 
+				return;
+			newUser.username=username.text;
+			newUser.emailaddress=emailaddress.text;
+			username.text='';
+			emailaddress.text='';
+			remoteObject.submitUser(newUser);
+ 			getUsers();
+		}
+
+		public function submitUserException():void {
+			var newUser:Array = new Array();
+			newUser.username='Foo Bogus';
+			newUser.emailaddress='foo@bogus-company.com';
+			remoteObject.submitUserException(newUser);
+ 		}
+
+		public function deleteUser():void {
+			var userid:int;
+			userid=dgUserRequest.selectedItem.userid;
+			// Only delete flextest database records with a valid userid
+			if (userid==0)
+				return;
+			remoteObject.deleteUser(userid);
+			getUsers();
+		}
+
+		public function deleteUserException(userid:int):void {		
+			//Irrelevant userid value passed in from line #116, below
+			remoteObject.deleteUserException(userid);
+		}
+	]]>
+	</mx:Script>
+	<mx:Form x="22" y="10" width="356" height="138">
+		<mx:HBox>
+			<mx:Label text="Username"/>
+			<mx:TextInput id="username" width="159"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Email Address"/>
+			<mx:TextInput id="emailaddress"/>
+		</mx:HBox>
+		<mx:Button label="Submit" click="submitUser()"/>
+		<mx:Button label="Submit (With PHP Exception)" click="submitUserException()"/>
+	</mx:Form>
+	<mx:DataGrid id="dgUserRequest" x="22" y="146" dataProvider="{dataProvider}" width="356">
+		<mx:columns>
+			<mx:DataGridColumn headerText="User ID" dataField="userid" width="60"/>
+			<mx:DataGridColumn headerText="User Name" dataField="username"/>
+			<mx:DataGridColumn headerText="Email Address" dataField="emailaddress"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Label x="39" y="314" text="User Name"/>
+	<mx:TextInput x="113" y="312" id="selectedusername" text="{dgUserRequest.selectedItem.username}"/>
+	<mx:Label x="22" y="344" text="Email Address"/>
+	<mx:TextInput x="113" y="342" id="selectedemailaddress" text="{dgUserRequest.selectedItem.emailaddress}"/>
+	<mx:Button x="113" y="372" label="Update User" click="updateUser()" width="96"/>
+	<mx:Button x="113" y="398" label="Delete User" click="deleteUser()" width="96"/>
+	<mx:Button x="113" y="428" label="Delete User (With PHP Exception)" click="deleteUserException(100)" />
+</mx:Application>
