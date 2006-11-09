@@ -1,0 +1,33 @@
+
+'localhost' = Web server root
+  'htdocs' for Apache
+  'Inetpub\wwwroot' for Microsoft IIS
+
+o simple_amfphp:
+
+  localhost/adobe_php_sdk/libraries/amfphp/services/simple_amfphp.php
+  localhost/adobe_php_sdk/libraries/amfphp/services/performance_testing.php
+
+o simple_flex_php:
+
+  localhost/adobe_php_sdk/samples/flex/simple_flex_php/request.php
+
+o simple_flex_xmlphp:
+
+  localhost/adobe_php_sdk/samples/flex/simple_flex_xmlphp/print_xml.php
+  
+o simple_weborb_php:
+
+  localhost/Services/adobe_php_sdk/simpleWebOrbPHP/dbio_example.php
+  
+  Add the following XML element entry:
+  
+    <destination id="SimpleWebOrbPHPDestination">
+      <properties>
+        <source>adobe_php_sdk.simpleWebOrbPHP.dbio_example</source>
+      </properties>
+    </destination>   
+
+  To the file "remoting-config.xml":
+
+  localhost/Weborb/WEB-INF/flex/remoting-config.xml
