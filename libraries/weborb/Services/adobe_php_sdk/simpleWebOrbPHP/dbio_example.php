@@ -18,10 +18,10 @@ class dbio_example {
    		throw new Exception($msg);
    	}
 	}
- 
+
 	public function getUsers() {
 		# Return a list of all the 'flextest' users
-		if (!$result=$this->mysqli->query("SELECT * from users")) {
+		if (!$result=$this->mysqli->query("SELECT * from users ORDER by userid")) {
 			$msg=$this->err_prefix."SELECT query error: ".$this->mysqli->error;
 			$this->mysqli->close();
    		throw new Exception($msg);
@@ -36,7 +36,7 @@ class dbio_example {
 		# Escape special characters 
 		$name=$this->mysqli->real_escape_string(trim($user['username']));
 		$addr=$this->mysqli->real_escape_string(trim($user['emailaddress']));
-		$query = "INSERT INTO users VALUES ('', '$name', '$addr')";
+		$query = "INSERT INTO users VALUES (NULL, '$name', '$addr')";
 		if (!$result=$this->mysqli->query($query)) {
 			$msg=$this->err_prefix."INSERT query error: ".$this->mysqli->error;
 			$this->mysqli->close();
@@ -53,6 +53,41 @@ class dbio_example {
 		}
 	}
 
+	public function updateUser($userid, $username, $emailaddress) {
+		$username=$this->mysqli->real_escape_string(trim($username));
+		$password=$this->mysqli->real_escape_string(trim($password));
+		$query = "UPDATE users SET username='$username', emailaddress='$emailaddress' WHERE userid='$userid'";
+		if (!$result=$this->mysqli->query($query)) {
+			$msg=$this->err_prefix."Update query error: ".$this->mysqli->error;
+			$this->mysqli->close();
+   		throw new Exception($msg);
+		}
+	}
+
+	public function login($username, $password) {
+		# Check username and password with `admin` database table
+		# If match in `admin` database table, then return true, otherwise return false.
+		$username=$this->mysqli->real_escape_string(trim($username));
+		$password=$this->mysqli->real_escape_string(trim($password));
+		if (!$result=$this->mysqli->query("SELECT * from admin WHERE username='$username' AND password = sha1('$password')")) {
+			$msg=$this->err_prefix."SELECT query error: ".$this->mysqli->error;
+			$this->mysqli->close();
+   		throw new Exception($msg);
+		}
+		if ($result->num_rows>0)   # Valid username and password match found.
+			return true;
+		# Log the invalid authentications
+		$date=date('Y-m-d H:i:s');  # Log the data of the invalid authentication attempt
+		if (!$result=$this->mysqli->query("INSERT INTO log VALUES (NULL, '$date', '$username', '$password')")) {
+			$msg=$this->err_prefix."INSERT query error: ".$this->mysqli->error;
+			$this->mysqli->close();
+   		throw new Exception($msg);
+		}
+		$msg = "Invalid login for User Name: \"$username\" and Password:\"$password\". Please try again.\n";
+		$this->mysqli->close();
+   	throw new Exception($msg);
+	}
+
 	// --- PHP Exception examples for testing and evaluation of Flex 2 Exception Handling ---
 	// --- NEVER PART OF A REAL SOLUTION ---
 
@@ -60,7 +95,7 @@ class dbio_example {
 		# Escape special characters 
 		$name=$this->mysqli->real_escape_string(trim($user['username']));
 		$addr=$this->mysqli->real_escape_string(trim($user['emailaddress']));
-		$query = "INSERT INTO xxxusers VALUES ('', '$name', '$addr')";
+		$query = "INSERT INTO xxxusers VALUES (NULL, '$name', '$addr')";
 		if (!$result=$this->mysqli->query($query)) {
 			$msg=$this->err_prefix."INSERT query error: ".$this->mysqli->error;
 			$this->mysqli->close();

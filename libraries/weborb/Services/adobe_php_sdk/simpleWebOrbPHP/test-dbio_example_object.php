@@ -17,8 +17,8 @@ include "dbio_example.php";
 
 $dbio_example = new dbio_example();
 
-$user= array('username'=>'Joseph Smith', 'emailaddress'=>'joe@adobe.yyy');
-$userid = 24;
+$user= array('username'=>'Joseph Smith', 'emailaddress'=>'');
+$userid = 13;
 
 // Get User Test
 # $arr = $dbio_example->getUsers();
@@ -35,6 +35,16 @@ $userid = 24;
 # $dbio_example->deleteUser($userid);
 # $arr = $dbio_example->getUsers();
 # echo "---- User database after delete of \$userid $userid: "; print_r($arr);
+
+
+// Update User Test
+# $username='Hello';
+# $emailaddress='world';
+# $arr = $dbio_example->getUsers();
+# echo "---- User database update of updateUser() call: "; print_r($arr);
+# $dbio_example->updateUser($userid, $username, $emailaddress);
+# $arr = $dbio_example->getUsers();
+# echo "---- User database after of updateUser() call: "; print_r($arr);
 
 // Submit User Exception Test
 # try {
@@ -53,6 +63,23 @@ $userid = 24;
 # 	var_dump($e);
 # 	echo "\n";
 # }
+
+// Login test: valid `admin` `username` and `password` access:
+//    'admin', 'admin'
+//    'user1', 'user11'
+//    'user2', 'user22'
+//    'user3', 'user33'
+# $users = array('admin'=>'admin', 'user1'=>'user11', 'user2'=>'user22', 'user3'=>'user33', 'fake'=>'bogus', 'Sam'=>'password');
+# try {
+#  	foreach ($users as $username => $password) {
+#  		$dbio_example->login($username, $password);
+#  		 printf("\$username = %6s, \$password = %8s: valid? Yes\n", $username, $password);
+#  	}
+#  } catch(Exception $e) {
+# 	printf("\$username = %6s, \$password = %8s: valid? No\n", $username, $password, $valid_user);
+#  	echo "\ndbio_example.php class => login() method exception:\n".$e->getMessage();
+#  }
+
 
 
 ?>
