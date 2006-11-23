@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" creationComplete="onCreationComplete()" backgroundGradientColors="[#ffffff, #ffffff]" currentState="login">
+<!-- Updated by Pete Mackie, Seaquest Software, October 7, 2006. To support updated 
+     version of WebORB for PHP "MySQL.php" class supporting PHP 5 objects and 'mysqli' 
+     (improved) database I/O. 
+-->
+	<mx:Script>
+	<![CDATA[
+	import mx.rpc.remoting.RemoteObject;
+	import mx.rpc.events.ResultEvent;
+	import mx.rpc.events.FaultEvent;
+	import mx.events.DataGridEvent;
+	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
+	import mx.utils.ArrayUtil;
+	import mx.effects.easing.Bounce;
+
+	[Bindable]
+	public var databaseList:ArrayCollection;
+
+	private var remoteObject:RemoteObject;
+	[Bindable]
+	public var tableData:ArrayCollection;
+	[Bindable]
+	public var recordsReturned:int;
+
+	public function onCreationComplete():void {
+		remoteObject = new RemoteObject();
+		remoteObject.destination = "GenericDestination";
+		remoteObject.source = "MySQL";
+		remoteObject.getDatabases.addEventListener("result", onResultGetDatabases);
+		remoteObject.getTables.addEventListener("result", onResultChangeTables );
+		remoteObject.getDataFromTable.addEventListener( "result", onResultLoadDataForTable );
+		remoteObject.addEventListener("fault", onFault);
+	}
+
+	public static function onFault(event:FaultEvent):void {
+		Alert.show(event.fault.faultString, 'Error');
+	}
+
+	public function getDatabases():void {
+		remoteObject.getDatabases( );
+	}
+
+	private function onResultGetDatabases(event:ResultEvent):void {
+		currentState = 'browse';
+		databaseList = new ArrayCollection(ArrayUtil.toArray(event.result));
+		listOfDatabases.dataProvider = databaseList;
+		changeTables();
+	}
+
+	private function changeTables():void {
+		remoteObject.getTables(listOfDatabases.selectedItem);
+	}
+
+	private function onResultChangeTables(event:ResultEvent):void {
+		listOfTables.dataProvider = ArrayUtil.toArray( event.result );
+	}
+
+	private function loadDataForTable():void {
+		loadDataStatus.text="Downloading data from Database: \"" + listOfDatabases.selectedItem + ",\" Table: \"" + listOfTables.selectedItem + ".\"";
+		remoteObject.getDataFromTable( listOfTables.selectedItem, listOfDatabases.selectedItem );
+	}
+
+	private function onResultLoadDataForTable( event:ResultEvent ):void {
+		tableData = new ArrayCollection( ArrayUtil.toArray(event.result) );
+		recordsReturned = tableData.length;
+		tableData.filterFunction = filterDataFunction;
+		tableDataGrid.dataProvider = tableData;
+		loadDataStatus.text="Database \"" + listOfDatabases.selectedItem + ",\" Table \"" + listOfTables.selectedItem + "\": returned " + recordsReturned + " records."
+	}	
+
+	private function changeRow( event:DataGridEvent ):void {
+		trace( event.rowIndex );
+	}
+
+	private function filterDataFunction( item:Object ):Boolean {
+		return( item[fields.selectedLabel].indexOf( search.text ) > -1 );
+	}
+
+	]]>
+	</mx:Script>	
+	<mx:transitions>
+		<!--
+			The "*" indicates that the transition should be applied
+			to any changes in the view state. You can set either 
+			property to "" to refer to the base view state. 
+		-->
+		<mx:Transition fromState="*" toState="*">
+			<!-- Parallel effects execute in unison --> 
+				<mx:Parallel targets="{[loginBox,browseCanvas]}">
+					<mx:Resize duration="1500" easingFunction="Bounce.easeOut"/>
+					<!-- 
+						Sequence effects execute in turn. The effects
+						in this sequence will only affect the confirm FormItem.
+					-->
+					<mx:Sequence target="{browseCanvas}">
+ 						<mx:Blur duration="200" blurYFrom="1.0" blurYTo="20.0" />            
+						<mx:Blur duration="200" blurYFrom="20.0" blurYTo="1" />            
+					</mx:Sequence>
+				</mx:Parallel>
+		</mx:Transition>
+	</mx:transitions>
+	<mx:states>
+		<mx:State name="login">
+			<mx:AddChild position="lastChild">
+				<mx:VBox id="loginBox" height="60%" left="10" top="10" right="10">
+					<mx:TextArea width="100%">
+						<mx:text>This is what you need to do: You need to set the server, username and password in the MySQL.php file, located in the Services/ directory before using this application. This application also shows the use of states.  This is the login state, when you click OK you will be taken to the browse state.</mx:text>
+					</mx:TextArea>
+					<mx:Button label="OK" textAlign="center" click="getDatabases()"/>
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="browse">
+			<mx:AddChild position="lastChild">
+				<mx:Canvas id="browseCanvas"  left="0" top="0" right="0" bottom="0">
+					<mx:DataGrid id="tableDataGrid" left="200" right="10" top="80" editable="true" itemEditEnd="changeRow(event)" bottom="50"/>
+					<mx:ComboBox labelField="Database" change="changeTables()" id="listOfDatabases" width="180" top="60" left="10" />
+					<mx:TextArea id="search" x="268" height="21" change="tableData.refresh()" bottom="10"/>
+					<mx:ComboBox labelField="dataField" id="fields" dataProvider="{tableDataGrid.columns}" x="464" bottom="10"></mx:ComboBox>
+					<mx:Text text="Database:" top="40" left="10"/>
+					<mx:Text text="Table:" left="10" top="100"/>
+					<mx:Text x="200" text="Search for:" bottom="10"/>
+					<mx:Text x="436" text="in:" bottom="10"/>
+					<mx:List labelField="Tables_in_{listOfDatabases.selectedItem}" change="loadDataForTable()" id="listOfTables" width="180" bottom="10" left="10" top="120" />
+					<mx:Text text="Flex Based MySQL Browser" left="10" top="5" right="10" textAlign="center" fontSize="15" fontFamily="Verdana" fontWeight="bold"/>
+					<mx:Text id="loadDataStatus" x="200" y="62" />
+				</mx:Canvas>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+</mx:Application>
