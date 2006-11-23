@@ -1,5 +1,0 @@
-Put ZendFlex_PHPPrintXML.mxml and RemotingConnection.as into a new Flex project.
-
-Run ZendFlex_PHPPrintXML.mxml as a Flex application.  The three buttons load the data 
-for you in the three different ways.  The start time, end time and elapsed time are 
-displayed at the bottom.
