@@ -5,6 +5,12 @@ AMFPHP - GPL
 WebORB for PHP - GPL
 Flex / Ajax Bridge - BSD
 
+The examples created with the libraries fall under the same license as the library.
+See the LICENSE.TXT file in each sample to see which license is applied. 
+
+The following license applies to the HTML content and samples where no other LICENSE
+ file is present.
+
 Copyright (c) 2006, Adobe Systems Inc.
 All rights reserved.
 
