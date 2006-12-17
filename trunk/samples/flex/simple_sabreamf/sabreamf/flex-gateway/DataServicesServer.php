@@ -88,7 +88,7 @@
                 $lastPeriod = strrpos( $source, "." );
                 if( $lastPeriod > 0 )
                     $lastPeriod++;
-                $className = substr( $source, $lastPeriod, strlen( $source ) - lastPeriod );
+                $className = substr( $source, $lastPeriod, strlen( $source ) - $lastPeriod );
 
                 //Check if class exists
                 if( !class_exists( $className ) )
