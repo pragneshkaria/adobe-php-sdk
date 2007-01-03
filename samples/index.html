@@ -28,47 +28,52 @@
 		
 		<table border="0" width="848" cellspacing="0" cellpadding="15">
 	<tr>
-		<td valign="top" width="568" class="copy"><h3>PHP RIA SDK Samples </h3>
+		<td valign="top" width="568" class="copy"><h3>Samples </h3>
           <ol>
       <li>Flex Samples - These samples make use of Adobe Flex technology and PHP.<br>
         <br>
-Note: For some samples you must create a flextest database first. Use this <a href="flextest.sql">flextest.sql</a> file to create the database, tables and users before beggining. <br>
+Note: For some samples you must create a flextest database first. Use this <a href="flextest.sql">flextest.sql</a> file to create the database, tables and users before beggining.<br>
 <br>
-<ol>
-	        <li><a href="flex/mysql_flex/mysql_flex.html">mysql_flex</a> This sample shows the use of Flex to browse your MySQL databases. You need to set the configuration in the MySQL.php file, located in the <span class="code">libraries/weborb/Services/</span> directory before running this.<br> 
-	          <br>
-</li>
-	        <li><a href="flex/simple_flex_xmlphp/simple_flex_xmlphp.html">simple_flex_xmlphp</a> This sample shows the use of Flex to read in XML created by a PHP script. There is no database required for this sample.<br>
-	          <br>
-	        </li>
-	        <li><a href="flex/simple_flex_php/simple_flex_php.html">simple_flex_php</a> This sample shows printing out records from a MySQL database in XML format, and using a Flex form to populate that database. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
-              <strong> Note: You must create the flextest database first. </strong>Use this <a href="flex/simple_amfphp/flextest.sql">flextest.sql</a> file to create the database, tables and users.<br>
-              <br>
-	        </li>
-	        <li><a href="flex/simple_amfphp/simple_amfphp.html">simple_amfphp</a> Same example as simple_flex_php, but using AMFPHP to transfer data back from MySQL, rather than printing out XML. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
-	          <strong>	            Note: You must create the flextest database first. </strong>Use this <a href="flex/simple_amfphp/flextest.sql">flextest.sql</a> file to create the database and tables. <br>
-	            <br>
-	          </li>
-	        <li><a href="flex/simple_weborb_php/simple_weborb_php.html">simple_weborb_php</a>  This sample shows how to use the <a href="http://www.themidnightcoders.com/weborb/php/index.htm">WebORB for PHP</a> library to transfer data to and from a Flex front end from PHP.  <a href="http://www.themidnightcoders.com/weborb/php/index.htm">WebORB for PHP</a> is recommended over AMFPHP, as it uses the newer AMF3 protocol. <br>
-	              <strong>Requires PHP 5 and higher. </strong><br>
-	          <br>
-	        </li>
-	        <li>simple_sabreamf This sample shows how to use the <a href="http://osflash.org/sabreamf">SabreAMF library</a> to transfer data to and from a Flex front end. Like <a href="http://www.themidnightcoders.com/weborb/php/index.htm">WebORB for PHP</a>, <a href="http://osflash.org/sabreamf">SabreAMF</a> uses the newer AMF3 protocol. <br>
-	              <strong>Requires PHP 5 and higher.</strong><br>
-	          <br>
-	        </li>
-            <li>amfphp_objectmapping This sample shows how to use AMFPHP and Flex to access typed object data. There are two examples, one that uses <a href="/http://labs.adobe.com/wiki/index.php/Cairngorm">Cairngorm</a> and one that doesn't. Follow the instructions in <a href="flex/amfphp_objectmapping/README.TXT">README.txt</a> file to build the application. <br>
-              <br> 
+<span class="header01">Basic Samples</span><br>
+      <ul>
+      <li><a href="flex/rest/rest.html">REST</a> This sample shows the use of Flex to read in XML created by a PHP script. There is no database required for this sample.<br>
+        <br>
+      </li>
+      <li><a href="flex/rest_with_database/rest_with_database.html">REST with database</a> This sample shows printing out records from a MySQL database in XML format, and using a Flex form to populate that database. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie. <br />
+        <strong> Note: You must create the flextest database first. </strong>Use this <a href="flextest.sql">flextest.sql</a> file to create the database, tables and users.        <br>
+        <br>
+      </li>
+      <li><a href="flex/amfphp/amfphp.html">AMFPHP</a> Same example as REST with database, but using <a href="http://www.amfphp.org/">AMFPHP</a> to transfer data back from MySQL, rather than printing out XML. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>, updated by Pete Mackie.  <a href="http://www.amfphp.org/">AMFPHP</a> uses the newer AMF3 protocol. <br />
+        <strong> Note: You must create the flextest database first. </strong>Use this <a href="flextest.sql">flextest.sql</a> file to create the database and tables.<br>
+        <strong>Requires PHP 5 and higher. </strong>        <br />
+          <br /> 
+            </ul>
+        <span class="header01">Advanced Samples</span><br>
+        <ul>
+          <li><a href="flex/mysql_flex/mysql_flex.html">mysql_flex</a> This sample shows the use of Flex to browse your MySQL databases. You need to set the database configuration in the MySQL.php file, located in the <span class="code">libraries/weborb/Services/</span> directory before running this.<br>
+            <br>
             </li>
-</ol>
-	      <li>Flex / Ajax Samples - These samples make use of both Adobe Ajax technology (Spry framework) and Adobe Flex, with PHP on the backend.
+                    <li><a href="flex/weborb/weborb.html">WebORB</a>  This sample shows how to use the <a href="http://www.themidnightcoders.com/weborb/php/index.htm">WebORB for PHP</a> library to transfer data to and from a Flex front end from PHP.  <a href="http://www.themidnightcoders.com/weborb/php/index.htm">WebORB for PHP</a> uses the newer AMF3 protocol. There is also an example that shows <a href="flex/weborb/weborb_login.html">how to pass login information to the server</a>. <br>
+                      <strong>Requires PHP 5 and higher. </strong><br>
+                      <br>
+                    </li>
+                    <li><a href="flex/sabreamf/README.TXT">SabreAMF</a> This sample shows how to use the <a href="http://osflash.org/sabreamf">SabreAMF library</a> to transfer data to and from a Flex front end. <a href="http://osflash.org/sabreamf">SabreAMF</a> uses the newer AMF3 protocol.  Follow the instructions in <a href="flex/sabreamf/README.TXT">README.txt</a><a href="flex/amfphp_objectmapping/README.TXT"></a> file to build the application. <br>
+                      <strong>Requires PHP 5 and higher.</strong><br>
+                      <br>
+                    </li>
+                    <li><a href="flex/amfphp_objectmapping/README.TXT">AMFPHP_objectmapping</a> This sample shows how to use AMFPHP and Flex to access typed object data. There are two examples, one that uses <a href="/http://labs.adobe.com/wiki/index.php/Cairngorm">Cairngorm</a> and one that doesn't. Follow the instructions in <a href="flex/amfphp_objectmapping/README.TXT">README.txt</a> file to build the application. <br>
+                      <br> 
+                    </li>
+              </ul>
+      </li>
+      <li>Flex / Ajax Samples - These samples make use of both Adobe Ajax technology (Spry framework) and Adobe Flex, with PHP on the backend.
 	        <br>
 	        <br>
 	        <ol>
-	          <li><a href="flex_ajax/flex_ajax_bridge/index.html">Flex / Ajax bridge</a> - Simple - Use the Flex / Ajax bridge to build applications like the feedburner sample that can talk from Ajax to Flex and vice versa. Check out the Flex / Ajax bridge sample to see its power in action. <br>
+	          <li><a href="flex_ajax/flex_ajax_bridge/index.html">Flex / Ajax bridge</a> - Use the Flex / Ajax bridge to build applications like the feedburner sample that can talk from Ajax to Flex and vice versa. Check out the Flex / Ajax bridge sample to see its power in action. <br>
 	            <br>
 	          </li>
-	          <li><a href="flex_ajax/feedburner/index.html">feedburner</a> - Intermediate - This sample shows retreiving data from Feedburner via Ajax, then using that data to populate a graph made with Adobe Flex. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>. </li>
+	          <li><a href="flex_ajax/feedburner/index.html">feedburner</a> - This sample shows retreiving data from Feedburner via Ajax, then using that data to populate a graph made with Adobe Flex. Created by <a href="http://blogs.adobe.com/mikepotter/">Mike Potter</a>. </li>
 	          </ol>
 	        </li>
 	      </ol>
