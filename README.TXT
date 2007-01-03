@@ -8,6 +8,13 @@ See INSTALL.txt
 
 CHANGE LOG
 ----------
+January 3rd, 2006
+New look to some of the samples.
+Updated to new version of AMFPHP - 1.9 beta.
+Updated to new version of Spry Framework - 1.4.
+Updated to new version of WebORB - 1.3.2
+Moved some files around to simplify things.
+
 October 4th, 2006
 Added in new Flex samples: mysql_flex which is a way to browse a MySQL database using 
 WebORB for PHP and a Flex front end.
