@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<flexProperties version="1" toolCompile="true" flexServerType="2" serverRoot="C:\Program Files\xampp\htdocs\php_ria_sdk_by_adobe\libraries\weborb\Weborb" serverRootURL="http://localhost/php_ria_sdk_by_adobe/samples/flex/"/>
+<flexProperties version="1" toolCompile="true" flexServerType="2" serverRoot="C:\Program Files\xampp\htdocs\php_ria_sdk_by_adobe\libraries\weborb\Weborb" serverRootURL="http://localhost/php_ria_sdk_by_adobe/libraries/weborb/Weborb/" serverContextRoot="php_ria_sdk_by_adobe/libraries/weborb/Weborb/"/>

@@ -29,7 +29,7 @@
    		remoteObject = new RemoteObject();
    		remoteObject.destination = "GenericDestination";
  			// Your PHPClassName.PHP must be deployed in the /Services folder
-   		remoteObject.source = "adobe_php_sdk.simpleWebOrbPHP.dbio_example";
+   		remoteObject.source = "adobe_php_sdk.dbio_example";
    		remoteObject.getUsers.addEventListener("result", getUsersResult); 
    		//remoteObject.updateUsers.addEventListener("result", updateUsersResult); 
    		remoteObject.login.addEventListener("result", onResultLogin); 
@@ -172,6 +172,10 @@
 					<mx:CheckBox x="10" y="92" click="setRememberPwd()" id="rememberCB" label="Remember my login" selected="{rememberPwd}" color="blue"/>
 			</mx:Panel>
 			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Text x="80" y="198" text="Valid login values can be found in the flextest.sql file that you loaded. (You need to load this .sql file before using this application)." width="275" height="146"/>
+			</mx:AddChild>
+			<mx:SetStyle name="backgroundGradientColors" value="[#ffffff, #ffffff]"/>
 		</mx:State>
 		<mx:State name="browse">
 			<mx:AddChild position="lastChild">
@@ -204,6 +208,7 @@
 					<mx:Button x="113" y="428" label="Delete User (With PHP Exception)" click="deleteUserException(100)" id="btnDeleteException"/>
 				</mx:Canvas>
 			</mx:AddChild>
+			<mx:SetStyle name="backgroundGradientColors" value="[#ffffff, #ffffff]"/>
 		</mx:State>
 	</mx:states>
 </mx:Application>

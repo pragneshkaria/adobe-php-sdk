@@ -242,9 +242,9 @@ function AC_GetArgs(args, ext, srcParamName, classid, mimeType){
       case "ondeactivate":
       case "type":
       case "codebase":
-      case "id":
         ret.objAttrs[args[i]] = args[i+1];
         break;
+      case "id":
       case "width":
       case "height":
       case "align":

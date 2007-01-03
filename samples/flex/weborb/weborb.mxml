@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="absolute" 
-	creationComplete="initApplication()">
+	creationComplete="initApplication()" backgroundGradientColors="[#ffffff, #ffffff]">
 	<mx:Script>
 	<![CDATA[
 		import mx.rpc.remoting.RemoteObject;
@@ -20,7 +20,7 @@
    		remoteObject = new RemoteObject();
    		remoteObject.destination = "GenericDestination";
   		// Your PHPClassName.PHP must be deployed in the /Services folder
-   		remoteObject.source = "adobe_php_sdk.simpleWebOrbPHP.dbio_example";
+   		remoteObject.source = "adobe_php_sdk.dbio_example";
    		remoteObject.getUsers.addEventListener("result", getUsersResult);
   		remoteObject.addEventListener("fault", onFault);
 			getUsers();
