@@ -1,4 +1,4 @@
-/* xpath.js - Revision: Spry Preview Release 1.3 */
+/* xpath.js - Revision: Spry Preview Release 1.4 */
 
 // Copyright (c) 2005, Google Inc.
 // All rights reserved.

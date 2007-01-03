@@ -1,4 +1,4 @@
-/* SpryData.js - Revision: Spry Preview Release 1.3 */
+/* SpryData.js - Revision: Spry Preview Release 1.4 */
 
 // Copyright (c) 2006. Adobe Systems Incorporated.
 // All rights reserved.
@@ -95,7 +95,7 @@ Spry.Utils.loadURL = function(method, url, async, callback, opts)
 		if (!req.async)
 			Spry.Utils.loadURL.callback(req);
 	}
-	catch(e) { req = null; Spry.Debug.reportError("Exception caught while loading " + url + ": " + e.message); }
+	catch(e) { req = null; Spry.Debug.reportError("Exception caught while loading " + url + ": " + e); }
 
 	return req;
 };
@@ -160,10 +160,45 @@ Spry.Utils.loadURL.Request.prototype.clone = function()
 	return req;
 };
 
+Spry.Utils.setInnerHTML = function(ele, str, preventScripts)
+{
+	if (!ele)
+		return;
+	ele = $(ele);
+	var scriptExpr = "<script[^>]*>(.|\s|\n|\r)*?</script>";
+	ele.innerHTML = str.replace(new RegExp(scriptExpr, "img"), "");
+
+	if (preventScripts)
+		return;
+		
+	var matches = str.match(new RegExp(scriptExpr, "img"));
+	if (matches)
+	{
+		var numMatches = matches.length;
+		for (var i = 0; i < numMatches; i++)
+		{
+			var s = matches[i].replace(/<script[^>]*>[\s\r\n]*(<\!--)?|(-->)?[\s\r\n]*<\/script>/img, "");
+			Spry.Utils.eval(s);
+		}
+	}
+};
+
+Spry.Utils.updateContent = function (ele, url, finishFunc, opts)
+{
+	var method = (opts && opts.method) ? opts.method : "GET";
+	Spry.Utils.loadURL(method, url, false, function(req)
+	{
+		Spry.Utils.setInnerHTML(ele, req.xhRequest.responseText);
+		if (finishFunc)
+			finishFunc(ele, url);
+	}, opts);
+};
+
 Spry.Utils.addEventListener = function(element, eventType, handler, capture)
 {
 	try
 	{
+		element = $(element);
 		if (element.addEventListener)
 			element.addEventListener(eventType, handler, capture);
 		else if (element.attachEvent)
@@ -176,6 +211,7 @@ Spry.Utils.removeEventListener = function(element, eventType, handler, capture)
 {
 	try
 	{
+		element = $(element);
 		if (element.removeEventListener)
 			element.removeEventListener(eventType, handler, capture);
 		else if (element.detachEvent)
@@ -395,25 +431,6 @@ Spry.Utils.fixUpIEInnerHTML = function(inStr)
 	return outStr;
 };
 
-Spry.Utils.getStyleProperty = function(element, property)
-{
-	try
-	{
-		if (element.style[property])
-			return element.style[property];
-		else if (element.currentStyle)
-			return element.currentStyle[property];
-		else if (document.defaultView && document.defaultView.getComputedStyle)
-		{
-			var style = document.defaultView.getComputedStyle(element, null);
-			return style.getPropertyValue(property);
-		}
-	}
-	catch (e) {}
-
-	return null;
-};
-
 Spry.Utils.stringToXMLDoc = function(str)
 {
 	var xmlDoc = null;
@@ -444,6 +461,49 @@ Spry.Utils.stringToXMLDoc = function(str)
 	}
 
 	return xmlDoc;
+};
+
+Spry.Utils.serializeObject = function(obj)
+{
+	// Create a JSON representation of a given object.
+
+	var str = "";
+	var firstItem = true;
+
+	if (obj == null || obj == undefined)
+		return str + obj;
+
+	var objType = typeof obj;
+
+	if (objType == "number" || objType == "boolean")
+		str += obj;
+	else if (objType == "string")
+		str += "\"" + Spry.Utils.escapeQuotesAndLineBreaks(obj) + "\"";
+	else if (obj.constructor == Array)
+	{
+		str += "[";
+		for (var i = 0; i < obj.length; i++)
+		{
+			if (!firstItem)
+				str += ", ";
+			str += Spry.Utils.serializeObject(obj[i]);
+			firstItem = false;
+		}
+		str += "]";
+	}
+	else if (objType == "object")
+	{
+		str += "{";
+		for (var p in obj)
+		{
+			if (!firstItem)
+				str += ", ";
+			str += "\"" + p + "\": " + Spry.Utils.serializeObject(obj[p]);
+			firstItem = false;
+		}
+		str += "}";
+	}
+	return str;
 };
 
 Spry.Utils.getNodesByFunc = function(root, func)
@@ -488,6 +548,7 @@ Spry.Utils.getNodesByFunc = function(root, func)
 
 Spry.Utils.addClassName = function(ele, className)
 {
+	ele = $(ele);
 	if (!ele || !className || (ele.className && ele.className.search(new RegExp("\\b" + className + "\\b")) != -1))
 		return;
 	ele.className += (ele.className ? " " : "") + className;
@@ -495,15 +556,10 @@ Spry.Utils.addClassName = function(ele, className)
 
 Spry.Utils.removeClassName = function(ele, className)
 {
+	ele = $(ele);
 	if (!ele || !className || (ele.className && ele.className.search(new RegExp("\\b" + className + "\\b")) == -1))
 		return;
 	ele.className = ele.className.replace(new RegExp("\\s*\\b" + className + "\\b", "g"), "");
-};
-
-Spry.Utils.removeAllChildren = function(node)
-{
-	while (node && node.firstChild)
-		node.removeChild(node.firstChild);
 };
 
 Spry.Utils.getFirstChildWithNodeName = function(node, nodeName)
@@ -1048,6 +1104,8 @@ Spry.Data.initRegions = function(rootNode)
 	if (!rootNode)
 		rootNode = document.body;
 
+	var lastRegionFound = null;
+
 	var regions = Spry.Utils.getNodesByFunc(rootNode, function(node)
 	{
 		try
@@ -1068,6 +1126,20 @@ Spry.Data.initRegions = function(rootNode)
 			}
 			if (attr)
 			{
+				if (lastRegionFound)
+				{
+					var parent = node.parentNode;
+					while (parent)
+					{
+						if (parent == lastRegionFound)
+						{
+							Spry.Debug.reportError("Found a nested " + attrName + " in the following markup. Nested regions are currently not supported.<br/><pre>" + Spry.Utils.encodeEntities(parent.innerHTML) + "</pre>");
+							return false;
+						}
+						parent = parent.parentNode;
+					}
+				}
+
 				if (attr.value)
 				{
 					attr = node.attributes.getNamedItem("id");
@@ -1076,7 +1148,8 @@ Spry.Data.initRegions = function(rootNode)
 						// The node is missing an id attribute so add one.
 						node.setAttribute("id", "spryregion" + (++Spry.Data.initRegions.nextUniqueRegionID));
 					}
-	
+
+					lastRegionFound = node;
 					return true;
 				}
 				else
@@ -1133,7 +1206,21 @@ Spry.Data.initRegions = function(rootNode)
 
 		var parent = null;
 		var regionStates = {};
+		var regionStateMap = {};
 
+		// Check if there are any attributes on the region node that remap
+		// the default states.
+
+		attr = rgn.attributes.getNamedItem("spry:readystate");
+		if (attr && attr.value)
+			regionStateMap["ready"] = attr.value;
+		attr = rgn.attributes.getNamedItem("spry:errorstate");
+		if (attr && attr.value)
+			regionStateMap["error"] = attr.value;
+		attr = rgn.attributes.getNamedItem("spry:loadingstate");
+		if (attr && attr.value)
+			regionStateMap["loading"] = attr.value;
+		
 		// Find all of the processing instruction regions in the region.
 		// Insert comments around the regions we find so we can identify them
 		// easily when tokenizing the region html string.
@@ -1194,14 +1281,17 @@ Spry.Data.initRegions = function(rootNode)
 						node.removeAttribute(piName);
 					}
 
-					if (!hasBehaviorAttributes && Spry.Data.Region.enableBehaviorAttributes)
+					if (Spry.Data.Region.enableBehaviorAttributes)
 					{
-						for (var behaviorAttrName in Spry.Data.Region.behaviorAttrs)
+						var bAttrs = Spry.Data.Region.behaviorAttrs;
+						for (var behaviorAttrName in bAttrs)
 						{
-							if (attributes.getNamedItem(behaviorAttrName))
+							var bAttr = attributes.getNamedItem(behaviorAttrName);
+							if (bAttr)
 							{
 								hasBehaviorAttributes = true;
-								break;
+								if (bAttrs[behaviorAttrName].setup)
+									bAttrs[behaviorAttrName].setup(node, bAttr.value);
 							}
 						}
 					}
@@ -1234,11 +1324,11 @@ Spry.Data.initRegions = function(rootNode)
 		if (!hasSpryContent)
 		{
 			// Clear the region.
-			Spry.Utils.removeAllChildren(rgn);
+			rgn.innerHTML = "";
 		}
 
 		// Create a Spry.Data.Region object for this region.
-		var region = new Spry.Data.Region(rgn, name, isDetailRegion, dataStr, dataSets, regionStates, hasBehaviorAttributes);
+		var region = new Spry.Data.Region(rgn, name, isDetailRegion, dataStr, dataSets, regionStates, regionStateMap, hasBehaviorAttributes);
 		Spry.Data.regionsArray[region.name] = region;
 	}
 
@@ -1308,14 +1398,15 @@ Spry.Data.DataSet = function()
 Spry.Data.DataSet.prototype = new Spry.Utils.Notifier();
 Spry.Data.DataSet.prototype.constructor = Spry.Data.DataSet;
 
-Spry.Data.DataSet.prototype.getData = function()
+Spry.Data.DataSet.prototype.getData = function(unfiltered)
 {
-	return this.data;
+	return (unfiltered && this.unfilteredData) ? this.unfilteredData : this.data;
 };
 
 Spry.Data.DataSet.prototype.getUnfilteredData = function()
 {
-	return this.unfilteredData ? this.unfilteredData : this.data;
+	// XXX: Deprecated.
+	return this.getData(true);
 };
 
 Spry.Data.DataSet.prototype.getLoadDataRequestIsPending = function()
@@ -1379,11 +1470,30 @@ Spry.Data.DataSet.prototype.cancelLoadData = function()
 	this.pendingRequest = null;
 };
 
-Spry.Data.DataSet.prototype.getCurrentRow = function()
+Spry.Data.DataSet.prototype.getRowCount = function(unfiltered)
+{
+	var rows = this.getData(unfiltered);
+	return rows ? rows.length : 0;
+};
+
+Spry.Data.DataSet.prototype.getRowByID = function(rowID)
 {
 	if (!this.data)
 		return null;
-	return this.dataHash[this.curRowID];
+	return this.dataHash[rowID];
+};
+
+Spry.Data.DataSet.prototype.getRowByRowNumber = function(rowNumber, unfiltered)
+{
+	var rows = this.getData(unfiltered);
+	if (rows && rowNumber >= 0 && rowNumber < rows.length)
+		return rows[rowNumber];
+	return null;
+};
+
+Spry.Data.DataSet.prototype.getCurrentRow = function()
+{
+	return this.getRowByID(this.curRowID);
 };
 
 Spry.Data.DataSet.prototype.setCurrentRow = function(rowID)
@@ -1430,6 +1540,39 @@ Spry.Data.DataSet.prototype.setCurrentRowNumber = function(rowNumber)
 		return;
 
 	this.setCurrentRow(rowID);
+};
+
+Spry.Data.DataSet.prototype.findRowsWithColumnValues = function(valueObj, firstMatchOnly, unfiltered)
+{
+	var results = [];
+	var rows = this.getData(unfiltered);
+	if (rows)
+	{
+		var numRows = rows.length;
+		for (var i = 0; i < numRows; i++)
+		{
+			var row = rows[i];
+			var matched = true;
+
+			for (var colName in valueObj)
+			{
+				if (valueObj[colName] != row[colName])
+				{
+					matched = false;
+					break;
+				}
+			}
+			
+			if (matched)
+			{
+				if (firstMatchOnly)
+					return row;
+				results.push(row);
+			}
+		}
+	}
+
+	return results;
 };
 
 Spry.Data.DataSet.prototype.setColumnType = function(columnName, columnType)
@@ -1483,6 +1626,10 @@ Spry.Data.DataSet.prototype.getSortColumn = function() {
 	return (this.lastSortColumns && this.lastSortColumns.length > 0) ? this.lastSortColumns[0] : "";
 };
 
+Spry.Data.DataSet.prototype.getSortOrder = function() {
+	return this.lastSortOrder ? this.lastSortOrder : "";
+};
+
 Spry.Data.DataSet.prototype.sort = function(columnNames, sortOrder)
 {
 	// columnNames can be either the name of a column to
@@ -1500,6 +1647,9 @@ Spry.Data.DataSet.prototype.sort = function(columnNames, sortOrder)
 	else if (columnNames.length < 2 && columnNames[0] != "ds_RowID")
 		columnNames.push("ds_RowID");
 
+	if (!sortOrder)
+		sortOrder = "toggle";
+
 	if (sortOrder == "toggle")
 	{
 		if (this.lastSortColumns.length > 0 && this.lastSortColumns[0] == columnNames[0] && this.lastSortOrder == "ascending")
@@ -1507,9 +1657,6 @@ Spry.Data.DataSet.prototype.sort = function(columnNames, sortOrder)
 		else
 			sortOrder = "ascending";
 	}
-
-	if (!sortOrder)
-		sortOrder = "ascending";
 
 	if (sortOrder != "ascending" && sortOrder != "descending")
 	{
@@ -1583,10 +1730,67 @@ Spry.Data.DataSet.prototype.sort.getSortFunc = function(prop, type, order)
 	else // type == "string"
 	{
 		if (order == "ascending")
-			sortfunc = function(a, b){ return (a[prop] < b[prop]) ? -1 : ((a[prop] > b[prop]) ? 1 : 0) };
+			sortfunc = function(a, b){
+				var tA = a[prop].toString();
+				var tB = b[prop].toString();
+				var tA_l = tA.toLowerCase();
+				var tB_l = tB.toLowerCase();
+				var min_len = tA.length > tB.length ? tB.length : tA.length;
+
+				for (var i=0; i < min_len; i++){
+					var a_l_c = tA_l.charAt(i);
+					var b_l_c = tB_l.charAt(i);
+					var a_c = tA.charAt(i);
+					var b_c = tB.charAt(i);
+					if (a_l_c > b_l_c){
+							return 1;
+					}else if (a_l_c < b_l_c){
+						 return -1;
+					}else if (a_c > b_c){
+						 return 1;
+					}else if (a_c < b_c){
+						 return -1;
+					}
+				}
+				if(tA.length == tB.length){
+					return 0;
+				}else if (tA.length > tB.length){
+					return 1;
+				}else{
+					return -1;	
+				}
+			};
 		else // order == "descending"
-			sortfunc = function(a, b){ return (a[prop] > b[prop]) ? -1 : ((a[prop] < b[prop]) ? 1 : 0) };
-	}
+			sortfunc = function(a, b){
+				var tA = a[prop].toString();
+				var tB = b[prop].toString();
+				var tA_l = tA.toLowerCase();
+				var tB_l = tB.toLowerCase();
+				var min_len = tA.length > tB.length ? tB.length : tA.length;
+				for (var i=0; i < min_len; i++){
+					var a_l_c = tA_l.charAt(i);
+					var b_l_c = tB_l.charAt(i);
+					var a_c = tA.charAt(i);
+					var b_c = tB.charAt(i);
+					if (a_l_c > b_l_c){
+							return -1;
+					}else if (a_l_c < b_l_c){
+						 return 1;
+					}else if (a_c > b_c){
+						 return -1;
+					}else if (a_c < b_c){
+						 return 1;
+					}
+				}
+				if(tA.length == tB.length){
+					return 0;
+				}else if (tA.length > tB.length){
+					return -1;
+				}else{
+					return 1;	
+				}
+			};	
+     }
 
 	return sortfunc;
 };
@@ -2218,7 +2422,7 @@ Spry.Data.XMLDataSet.LoadManager.cancelLoadData = function(cacheObj, ds)
 //
 //////////////////////////////////////////////////////////////////////
  
-Spry.Data.Region = function(regionNode, name, isDetailRegion, data, dataSets, regionStates, hasBehaviorAttributes)
+Spry.Data.Region = function(regionNode, name, isDetailRegion, data, dataSets, regionStates, regionStateMap, hasBehaviorAttributes)
 {
 	this.regionNode = regionNode;
 	this.name = name;
@@ -2229,8 +2433,10 @@ Spry.Data.Region = function(regionNode, name, isDetailRegion, data, dataSets, re
 	this.tokens = null;
 	this.currentState = null;
 	this.states = { ready: true };
+	this.stateMap = {};
 
 	Spry.Utils.setOptions(this.states, regionStates);
+	Spry.Utils.setOptions(this.stateMap, regionStateMap);
 
 	// Add the region as an observer to the dataSet!
 	for (var i = 0; i < this.dataSets.length; i++)
@@ -2250,6 +2456,7 @@ Spry.Data.Region.hiddenRegionClassName = "SpryHiddenRegion";
 Spry.Data.Region.evenRowClassName = "even";
 Spry.Data.Region.oddRowClassName = "odd";
 Spry.Data.Region.notifiers = {};
+Spry.Data.Region.evalScripts = true;
 
 Spry.Data.Region.addObserver = function(regionID, observer)
 {
@@ -2269,11 +2476,23 @@ Spry.Data.Region.removeObserver = function(regionID, observer)
 		n.removeObserver(observer);
 };
 
-Spry.Data.Region.notifyObservers = function(methodName, regionID)
+Spry.Data.Region.notifyObservers = function(methodName, region, data)
 {
-	var n = Spry.Data.Region.notifiers[regionID];
+	var n = Spry.Data.Region.notifiers[region.name];
 	if (n)
-		n.notifyObservers(methodName, { regionID: regionID });
+	{
+		var dataObj = {};
+		if (data && typeof data == "object")
+			dataObj = data;
+		else
+			dataObj.data = data;
+
+		dataObj.region = region;
+		dataObj.regionID = region.name;
+		dataObj.regionNode = region.regionNode;
+
+		n.notifyObservers(methodName, dataObj);
+	}
 };
 
 Spry.Data.Region.RS_Error = 0x01;
@@ -2286,9 +2505,24 @@ Spry.Data.Region.prototype.getState = function()
 	return this.currentState;
 };
 
+Spry.Data.Region.prototype.mapState = function(stateName, newStateName)
+{
+	this.stateMap[stateName] = newStateName;
+};
+
+Spry.Data.Region.prototype.getMappedState = function(stateName)
+{
+	var mappedState = this.stateMap[stateName];
+	return mappedState ? mappedState : stateName;
+};
+
 Spry.Data.Region.prototype.setState = function(stateName, suppressNotfications)
 {
-	this.currentState = stateName;
+	var stateObj = { state: stateName, mappedState: this.getMappedState(stateName) };
+	if (!suppressNotfications)
+		Spry.Data.Region.notifyObservers("onPreStateChange", this, stateObj);
+
+	this.currentState = stateObj.mappedState ? stateObj.mappedState : stateName;
 
 	// If the region has content that is specific to this
 	// state, regenerate the region so that its markup is updated.
@@ -2296,7 +2530,7 @@ Spry.Data.Region.prototype.setState = function(stateName, suppressNotfications)
 	if (this.states[stateName])
 	{
 		if (!suppressNotfications)
-			Spry.Data.Region.notifyObservers("onPreUpdate", this.name);
+			Spry.Data.Region.notifyObservers("onPreUpdate", this, { state: this.currentState });
 	
 		// Make the region transform the xml data. The result is
 		// a string that we need to parse and insert into the document.
@@ -2309,7 +2543,7 @@ Spry.Data.Region.prototype.setState = function(stateName, suppressNotfications)
 			Spry.Debug.trace("<hr />Generated region markup for '" + this.name + "':<br /><br />" + Spry.Utils.encodeEntities(str));
 
 		// Now insert the new transformed content into the document.
-		this.regionNode.innerHTML = str;
+		Spry.Utils.setInnerHTML(this.regionNode, str, !Spry.Data.Region.evalScripts);
 	
 		// Now run through the content looking for attributes
 		// that tell us what behaviors to attach to each element.
@@ -2317,8 +2551,11 @@ Spry.Data.Region.prototype.setState = function(stateName, suppressNotfications)
 			this.attachBehaviors();
 	
 		if (!suppressNotfications)
-			Spry.Data.Region.notifyObservers("onPostUpdate", this.name);
+			Spry.Data.Region.notifyObservers("onPostUpdate", this, { state: this.currentState });
 	}
+
+	if (!suppressNotfications)
+		Spry.Data.Region.notifyObservers("onPostStateChange", this, stateObj);
 };
 
 Spry.Data.Region.prototype.getDataSets = function()
@@ -2372,7 +2609,7 @@ Spry.Data.Region.prototype.onLoadError = function(dataSet)
 {
 	if (this.currentState != "error")
 		this.setState("error");
-	Spry.Data.Region.notifyObservers("onError", this.name);
+	Spry.Data.Region.notifyObservers("onError", this);
 };
 
 Spry.Data.Region.prototype.onCurrentRowChanged = function(dataSet, data)
@@ -2396,7 +2633,7 @@ Spry.Data.Region.behaviorAttrs = {};
 
 Spry.Data.Region.behaviorAttrs["spry:select"] =
 {
-	attach: function(node, value)
+	attach: function(rgn, node, value)
 	{
 		var selectGroupName = null;
 		try { selectGroupName = node.attributes.getNamedItem("spry:selectgroup").value; } catch (e) {}
@@ -2412,33 +2649,249 @@ Spry.Data.Region.behaviorAttrs["spry:select"] =
 
 Spry.Data.Region.behaviorAttrs["spry:hover"] =
 {
-	attach: function(node, value)
+	attach: function(rgn, node, value)
 	{
 		Spry.Utils.addEventListener(node, "mouseover", function(event){ Spry.Utils.addClassName(node, value); }, false);
 		Spry.Utils.addEventListener(node, "mouseout", function(event){ Spry.Utils.removeClassName(node, value); }, false);
 	}
 };
 
+Spry.Data.Region.setUpRowNumberForEvenOddAttr = function(node, attr, value, rowNumAttrName)
+{
+	// The format for the spry:even and spry:odd attributes are as follows:
+	//
+	// <div spry:even="dataSetName cssEvenClassName" spry:odd="dataSetName cssOddClassName">
+	//
+	// The dataSetName is optional, and if not specified, the first data set
+	// listed for the region is used.
+	//
+	// cssEvenClassName and cssOddClassName are required and *must* be specified. They can be
+	// any user defined CSS class name.
+
+	if (!value)
+	{
+		Spry.Debug.showError("The " + attr + " attribute requires a CSS class name as its value!");
+		node.attributes.removeNamedItem(attr);
+		return;
+	}
+
+	var dsName = "";
+	var valArr = value.split(/\s/);
+	if (valArr.length > 1)
+	{
+		// Extract out the data set name and reset the attribute so
+		// that it only contains the CSS class name to use.
+
+		dsName = valArr[0];
+		node.setAttribute(attr, valArr[1]);
+	}
+
+	// Tag the node with an attribute that will allow us to fetch the row
+	// number used when it is written out during the re-generation process.
+
+	node.setAttribute(rowNumAttrName, "{" + (dsName ? (dsName + "::") : "") + "ds_RowNumber}");
+};
+
+Spry.Data.Region.behaviorAttrs["spry:even"] =
+{
+	setup: function(node, value)
+	{
+		Spry.Data.Region.setUpRowNumberForEvenOddAttr(node, "spry:even", value, "spryevenrownumber");
+	},
+
+	attach: function(rgn, node, value)
+	{
+		if (value)
+		{
+			rowNumAttr = node.attributes.getNamedItem("spryevenrownumber");
+			if (rowNumAttr && rowNumAttr.value)
+			{
+				var rowNum = parseInt(rowNumAttr.value);
+				if (rowNum % 2)
+					Spry.Utils.addClassName(node, value);
+			}
+		}
+		node.removeAttribute("spry:even");
+		node.removeAttribute("spryevenrownumber");
+	}
+};
+
+Spry.Data.Region.behaviorAttrs["spry:odd"] =
+{
+	setup: function(node, value)
+	{
+		Spry.Data.Region.setUpRowNumberForEvenOddAttr(node, "spry:odd", value, "spryoddrownumber");
+	},
+
+	attach: function(rgn, node, value)
+	{
+		if (value)
+		{
+			rowNumAttr = node.attributes.getNamedItem("spryoddrownumber");
+			if (rowNumAttr && rowNumAttr.value)
+			{
+				var rowNum = parseInt(rowNumAttr.value);
+				if (rowNum % 2 == 0)
+					Spry.Utils.addClassName(node, value);
+			}
+		}
+		node.removeAttribute("spry:odd");
+		node.removeAttribute("spryoddrownumber");
+	}
+};
+
+Spry.Data.Region.setRowAttrClickHandler = function(node, dsName, rowAttr, funcName)
+{
+		if (dsName)
+		{
+			var ds = null;
+			try { ds = Spry.Utils.eval(dsName); } catch(e) { ds = null; };
+			if (ds)
+			{
+				rowIDAttr = node.attributes.getNamedItem(rowAttr);
+				if (rowIDAttr)
+				{
+					var rowAttrVal = rowIDAttr.value;
+					if (rowAttrVal)
+						Spry.Utils.addEventListener(node, "click", function(event){ ds[funcName](rowAttrVal); }, false);
+				}
+			}
+		}
+};
+
+Spry.Data.Region.behaviorAttrs["spry:setrow"] =
+{
+	setup: function(node, value)
+	{
+		if (!value)
+		{
+			Spry.Debug.reportError("The spry:setrow attribute requires a data set name as its value!");
+			node.removeAttribute("spry:setrow");
+			return;
+		}
+
+		// Tag the node with an attribute that will allow us to fetch the id of the
+		// row used when it is written out during the re-generation process.
+
+		node.setAttribute("spryrowid", "{" + value + "::ds_RowID}");
+	},
+
+	attach: function(rgn, node, value)
+	{
+		Spry.Data.Region.setRowAttrClickHandler(node, value, "spryrowid", "setCurrentRow");
+		node.removeAttribute("spry:setrow");
+		node.removeAttribute("spryrowid");
+	}
+};
+
+Spry.Data.Region.behaviorAttrs["spry:setrownumber"] =
+{
+	setup: function(node, value)
+	{
+		if (!value)
+		{
+			Spry.Debug.reportError("The spry:setrownumber attribute requires a data set name as its value!");
+			node.removeAttribute("spry:setrownumber");
+			return;
+		}
+
+		// Tag the node with an attribute that will allow us to fetch the row number
+		// of the row used when it is written out during the re-generation process.
+
+		node.setAttribute("spryrownumber", "{" + value + "::ds_RowID}");
+	},
+
+	attach: function(rgn, node, value)
+	{
+		Spry.Data.Region.setRowAttrClickHandler(node, value, "spryrownumber", "setCurrentRowNumber");
+		node.removeAttribute("spry:setrownumber");
+		node.removeAttribute("spryrownumber");
+	}
+};
+
+Spry.Data.Region.behaviorAttrs["spry:sort"] =
+{
+	attach: function(rgn, node, value)
+	{
+		if (!value)
+			return;
+
+		// The format of a spry:sort attribute is as follows:
+		//
+		// <div spry:sort="dataSetName column1Name column2Name ... sortOrderName">
+		//
+		// The dataSetName and sortOrderName are optional, but when specified, they
+		// must appear in the order mentioned above. If the dataSetName is not specified,
+		// the first data set listed for the region is used. If the sortOrderName is not
+		// specified, the sort defaults to "toggle".
+		//
+		// The user *must* specify at least one column name.
+
+		var ds = rgn.getDataSets()[0];
+		var sortOrder = "toggle";
+
+		var colArray = value.split(/\s/);
+		if (colArray.length > 1)
+		{
+			// Check the first string in the attribute to see if a data set was
+			// specified. If so, make sure we use it for the sort.
+
+			try
+			{
+				var specifiedDS = eval(colArray[0]);
+				if (specifiedDS && (typeof specifiedDS) == "object")
+				{
+					ds = specifiedDS;
+					colArray.shift();
+				}
+
+			} catch(e) {}
+
+			// Check to see if the last string in the attribute is the name of
+			// a sort order. If so, use that sort order during the sort.
+
+			if (colArray.length > 1)
+			{
+				var str = colArray[colArray.length - 1];
+				if (str == "ascending" || str == "descending" || str == "toggle")
+				{
+					sortOrder = str;
+					colArray.pop();
+				}
+			}
+		}
+
+		// If we have a data set and some column names, add a non-destructive
+		// onclick handler that will perform a toggle sort on the data set.
+
+		if (ds && colArray.length > 0)
+			Spry.Utils.addEventListener(node, "click", function(event){ ds.sort(colArray, sortOrder); }, false);
+
+		node.removeAttribute("spry:sort");
+	}
+};
+
 Spry.Data.Region.prototype.attachBehaviors = function()
 {
+	var rgn = this;
 	Spry.Utils.getNodesByFunc(this.regionNode, function(node)
 	{
-		if (!node)
+		if (!node || node.nodeType != 1 /* Node.ELEMENT_NODE */)
 			return false;
 		try
 		{
-			var attrs = node.attributes;
-			for (var i = 0; i < attrs.length; i++)
+			var bAttrs = Spry.Data.Region.behaviorAttrs;
+			for (var bAttrName in bAttrs)
 			{
-				var attr = attrs[i];
-				var behavior = Spry.Data.Region.behaviorAttrs[attr.nodeName.toLowerCase()];
-				if (behavior)
-					behavior.attach(node, attr.value);
+				var attr = node.attributes.getNamedItem(bAttrName);
+				if (attr)
+				{
+					var behavior = bAttrs[bAttrName];
+					if (behavior && behavior.attach)
+						behavior.attach(rgn, node, attr.value);
+				}
 			}
-		}
-		catch(e)
-		{
-		}
+		} catch(e) {}
 
 		return false;
 	});
@@ -2475,7 +2928,7 @@ Spry.Data.Region.prototype.updateContent = function()
 
 	if (!allDataSetsReady)
 	{
-		Spry.Data.Region.notifyObservers("onLoadingData", this.name);
+		Spry.Data.Region.notifyObservers("onLoadingData", this);
 
 		// Just return, this method will get called again automatically
 		// as each data set load completes!
@@ -2487,7 +2940,7 @@ Spry.Data.Region.prototype.updateContent = function()
 
 Spry.Data.Region.prototype.clearContent = function()
 {
-	Spry.Utils.removeAllChildren(this.regionNode);
+	this.regionNode.innerHTML = "";
 };
 
 Spry.Data.Region.processContentPI = function(inStr)
@@ -2920,7 +3373,7 @@ Spry.Data.Region.prototype.processTokens = function(token, processContext)
 			else if (token.data == "ds_EvenOddRow")
 				outputStr += (dsContext.getRowIndex() % 2) ? Spry.Data.Region.evenRowClassName : Spry.Data.Region.oddRowClassName;
 			else if (token.data == "ds_SortOrder")
-				outputStr += (ds.lastSortOrder) ? ds.lastSortOrder : "";
+				outputStr += ds.getSortOrder();
 			else if (token.data == "ds_SortColumn")
 				outputStr += ds.getSortColumn();
 			else
@@ -3155,9 +3608,7 @@ Spry.Data.Region.processDataRefString = function(processingContext, regionStr, d
 			}
 			else if (fieldName == "ds_SortOrder")
 			{
-				var sortOrder = dsContext.getDataSet().lastSortOrder;
-				if (sortOrder)
-					resultStr += sortOrder;
+				resultStr += dsContext.getDataSet().getSortOrder();;
 				row = null;
 			}
 			else if (fieldName == "ds_SortColumn")
@@ -3250,8 +3701,7 @@ Spry.Data.Region.DSContext = function(dataSet)
 	this.getDataSet = function() { return m_dataSet; };
 	this.getNumRows = function(unfiltered)
 	{
-		var rows = unfiltered ? m_dataSet.getUnfilteredData() : m_dataSet.getData();
-		return rows ? rows.length : 0;
+		return m_dataSet.getRowCount(unfiltered);
 	};
 	this.getCurrentRow = function()
 	{

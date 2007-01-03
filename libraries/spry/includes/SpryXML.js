@@ -1,4 +1,4 @@
-/* SpryXML.js - Revision: Spry Preview Release 1.3 */
+/* SpryXML.js - Revision: Spry Preview Release 1.4 */
 
 // Copyright (c) 2006. Adobe Systems Incorporated.
 // All rights reserved.
@@ -155,4 +155,194 @@ Spry.XML.getSchema = function(xmlDoc)
 	}
 
 	return Spry.XML.getSchemaForElement(node);
+};
+
+Spry.XML.nodeHasValue = function(node)
+{
+	if (node)
+	{
+		var child = node.firstChild;
+		if (child && child.nextSibling == null && (child.nodeType == 3 /* Node.TEXT_NODE */ || child.nodeType == 4 /* CDATA_SECTION_NODE */))
+			return true;
+	}
+	return false;
+};
+
+Spry.XML.XObject = function()
+{
+};
+
+Spry.XML.XObject.prototype._value = function()
+{
+	var val = this["#text"];
+	if (val != undefined)
+		return val;
+	return this["#cdata-section"];
+};
+
+Spry.XML.XObject.prototype._hasValue = function()
+{
+	return this._value() != undefined;
+};
+
+Spry.XML.XObject.prototype._valueIsText = function()
+{
+	return this["#text"] != undefined;
+};
+
+Spry.XML.XObject.prototype._valueIsCData = function()
+{
+	return this["#cdata-section"] != undefined;
+};
+
+Spry.XML.XObject.prototype._propertyIsArray = function(prop)
+{
+	var val = this[prop];
+	if (val == undefined)
+		return false;
+	return (typeof val == "object" && val.constructor == Array);
+};
+
+Spry.XML.XObject.prototype._getPropertyAsArray = function(prop)
+{
+	var arr = [];
+	var val = this[prop];
+	if (val != undefined)
+	{
+		if (typeof val == "object" && val.constructor == Array)
+			return val;
+		arr.push(val);
+	}
+	return arr;
+};
+
+Spry.XML.XObject.prototype._getProperties = function()
+{
+	var props = [];
+	for (var p in this)
+	{
+		if (!/^_/.test(p))
+			props.push(p);
+	}
+	return props;
+};
+
+Spry.XML.nodeToObject = function(node)
+{
+	if (!node)
+		return null;
+
+	var obj = new Spry.XML.XObject();
+
+	// Add all attributes as properties of the object.
+
+	for (var i = 0; i < node.attributes.length; i++)
+	{
+		var attr = node.attributes[i];
+		var attrName = "@" + attr.name;
+		obj[attrName] = attr.value;
+	}
+
+	var child;
+
+	if (Spry.XML.nodeHasValue(node))
+	{	
+		try
+		{
+			child = node.firstChild;
+
+			if (child.nodeType == 3 /* TEXT_NODE */)
+				obj[child.nodeName] = Spry.Utils.encodeEntities(child.data);
+			else if (child.nodeType == 4 /* CDATA_SECTION_NODE */)
+				obj[child.nodeName] = child.data;
+		} catch (e) { Spry.Debug.reportError("Spry.XML.nodeToObject() exception caught: " + e + "\n"); }
+	}
+	else
+	{
+		// The node has no value, so run through any element children
+		// it may have and add them as properties.
+
+		child = node.firstChild;
+		while (child)
+		{
+			if (child.nodeType == 1 /* Node.ELEMENT_NODE */)
+			{
+				var isArray = false;
+				var tagName = child.nodeName;
+				if (obj[tagName])
+				{
+					if (obj[tagName].constructor != Array)
+					{
+						var curValue = obj[tagName];
+						obj[tagName] = new Array;
+						obj[tagName].push(curValue);
+					}
+					isArray = true;
+				}
+
+				var childObj = Spry.XML.nodeToObject(child);
+				
+				if (isArray)
+					obj[tagName].push(childObj);
+				else
+					obj[tagName] = childObj;
+			}
+			child = child.nextSibling;
+		}
+	}
+	return obj;
+};
+
+// Spry.XML.documentToObject - Utility method for creating a
+// JavaScript object with properties and nested objects that
+// mirror an XML document tree structure.
+//
+// Sample XML:
+//
+//		<employees>
+//			<employee id="1000">
+//				<name>John Doe</name>
+//			</employee>
+//			<employee id="2000">
+//				<name><![CDATA[Jane Smith]]></name>
+//			</employee>
+//		</employees>
+//
+// Object returned by documentToObject():
+//
+//		{
+//			employees:
+//				{
+//					employee:
+//						[
+//							{
+//								@id: "1000",
+//								name: { "#text": "John Doe" }
+//							},
+//							{
+//								@id: "2000",
+//								name: { "#cdata-section": "Jane Smith" }
+//							}
+//						]
+//				}
+//		}
+
+Spry.XML.documentToObject = function(xmlDoc)
+{
+	var obj = null;
+	if (xmlDoc && xmlDoc.firstChild)
+	{
+		var child = xmlDoc.firstChild;
+		while (child)
+		{
+			if (child.nodeType == 1 /* Node.ELEMENT_NODE */)
+			{
+				obj = new Spry.XML.XObject();
+				obj[child.nodeName] = Spry.XML.nodeToObject(child);
+				break;
+			}
+			child = child.nextSibling;
+		}
+	}
+	return obj;
 };
