@@ -9,16 +9,17 @@
 
 		import flash.net.Responder;
 
-		public var gateway:RemotingConnection;
+		public var gateway:NetConnection;
 		
 		public function onInit():void
    		{
-   			gateway = new RemotingConnection("../../../libraries/amfphp/gateway.php");
+   			gateway = new NetConnection();
+   			gateway.connect("../../../libraries/amfphp/gateway.php");
 			getUsers();
   		}
   		
 		public function getUsers():void {
-			gateway.call("simple_amfphp.getUsers", new Responder(getResult, onFault));
+			gateway.call("amfphp.getUsers", new Responder(getResult, onFault));
 		}
 
 		public function getResult(result:Array ):void {
@@ -29,7 +30,7 @@
 			var newUser:Object = new Object();
 			newUser.username=username.text;
 			newUser.emailaddress=emailaddress.text;
-			gateway.call("simple_amfphp.submitUser", new Responder(null, onFault), newUser);
+			gateway.call("amfphp.submitUser", new Responder(null, onFault), newUser);
 			getUsers();
 		}
 
