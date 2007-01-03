@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actionScriptProperties version="1" mainApplicationPath="mysql_flex.mxml">
-  <compiler additionalCompilerArguments="-services &quot;C:\Program Files\xampp\htdocs\php_ria_sdk_by_adobe\libraries\weborb\Weborb\WEB-INF\flex\services-config.xml&quot; -locale en_US" copyDependentFiles="true" generateAccessible="false" strict="true" warn="true" htmlGenerate="true" htmlPlayerVersionCheck="true" htmlPlayerVersion="9.0.0" htmlExpressInstall="true" htmlHistoryManagement="true" outputFolderPath="" rootURL="http://localhost/php_ria_sdk_by_adobe/samples/flex/mysql_flex" sourceFolderPath="">
+  <compiler additionalCompilerArguments="-services &quot;C:\Program Files\xampp\htdocs\php_ria_sdk_by_adobe\libraries\weborb\Weborb\WEB-INF\flex\services-config.xml&quot; -locale en_US" copyDependentFiles="true" generateAccessible="false" strict="true" warn="true" htmlGenerate="true" htmlPlayerVersionCheck="true" htmlPlayerVersion="9.0.0" htmlExpressInstall="true" htmlHistoryManagement="true" outputFolderPath="" rootURL="http://localhost/php_ria_sdk_by_adobe/samples/flex/mysql_flex/">
     <compilerSourcePath/>
     <libraryPath>
       <libraryPathEntry kind="3" path="${FRAMEWORKS}/libs/playerglobal.swc" linkType="2"/>
@@ -12,12 +12,13 @@
       <libraryPathEntry kind="1" path="${FRAMEWORKS}/locale/{locale}" linkType="1"/>
     </libraryPath>
     <sourceAttachmentPath>
-      <sourceAttachmentPathEntry kind="3" path="${FRAMEWORKS}/libs/flex.swc" sourcepath="${FRAMEWORKS}/source"/>
-      <sourceAttachmentPathEntry kind="3" path="${FRAMEWORKS}/libs/framework.swc" sourcepath="${FRAMEWORKS}/source"/>
-      <sourceAttachmentPathEntry kind="3" path="${FRAMEWORKS}/libs/charts.swc" sourcepath="${FRAMEWORKS}/source"/>
+      <sourceAttachmentPathEntry kind="3" path="${FRAMEWORKS}/libs/flex.swc" linkType="1" sourcepath="${FRAMEWORKS}/source"/>
+      <sourceAttachmentPathEntry kind="3" path="${FRAMEWORKS}/libs/framework.swc" linkType="1" sourcepath="${FRAMEWORKS}/source"/>
+      <sourceAttachmentPathEntry kind="3" path="${FRAMEWORKS}/libs/charts.swc" linkType="1" sourcepath="${FRAMEWORKS}/source"/>
     </sourceAttachmentPath>
   </compiler>
   <applications>
     <application path="mysql_flex.mxml"/>
   </applications>
+  <buildCSSFiles/>
 </actionScriptProperties>
