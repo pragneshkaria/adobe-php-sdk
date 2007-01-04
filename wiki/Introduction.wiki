@@ -3,7 +3,7 @@
 
 = Introduction =
 
-Getting started with the PHP RIA SDK by Adobe is easy.  Simply download the SDK, extract it, then open up the index.html page.
+Getting started with the PHP RIA SDK by Adobe is easy.  Simply [http://www.adobe.com/devnet/flex/articles/flex_php_sdk.html download the SDK], extract it, then open up the index.html page.
 
 = Details =
 
